@@ -1,0 +1,63 @@
+export const API_ENDPOINTS = {
+  categories: {
+    list: "/categories",
+    detail: (idOrSlug: string) => `/categories/${encodeURIComponent(idOrSlug)}`,
+  },
+  creators: {
+    list: "/creators",
+    me: "/creators/me",
+    socials: "/creators/me/socials",
+    detail: (username: string) => `/creators/${encodeURIComponent(username)}`,
+    clashes: (username: string) => `/creators/${encodeURIComponent(username)}/clashes`,
+    supporters: (username: string) => `/creators/${encodeURIComponent(username)}/supporters`,
+    supports: (username: string) => `/creators/${encodeURIComponent(username)}/supports`,
+    achievements: (username: string) => `/creators/${encodeURIComponent(username)}/achievements`,
+  },
+  clashes: {
+    list: "/clashes",
+    detail: (id: string) => `/clashes/${encodeURIComponent(id)}`,
+    leaderboard: (id: string) => `/clashes/${encodeURIComponent(id)}/leaderboard`,
+    winner: (id: string) => `/clashes/${encodeURIComponent(id)}/winner`,
+    join: (id: string) => `/clashes/${encodeURIComponent(id)}/join`,
+  },
+  supports: {
+    create: "/support",
+    detail: (id: string) => `/support/${encodeURIComponent(id)}`,
+  },
+  payments: {
+    verifyRazorpay: "/payments/razorpay/verify",
+  },
+  reports: {
+    create: "/reports",
+  },
+  winners: {
+    list: "/winners",
+  },
+  achievements: "/achievements",
+  auth: {
+    signup: "/auth/signup",
+    login: "/auth/login",
+    logout: "/auth/logout",
+    me: "/auth/me",
+  },
+  admin: {
+    login: "/admin/login",
+    logout: "/admin/logout",
+    me: "/admin/me",
+    dashboard: "/admin/dashboard",
+    creators: "/admin/creators",
+    creatorStatus: (id: string) => `/admin/creators/${id}/status`,
+    clashes: "/admin/clashes",
+    clash: (id: string) => `/admin/clashes/${id}`,
+    completeClash: (id: string) => `/admin/clashes/${id}/complete`,
+    reports: "/admin/reports",
+    report: (id: string) => `/admin/reports/${id}`,
+    achievements: "/admin/achievements",
+    achievement: (id: string) => `/admin/achievements/${id}`,
+    settings: "/admin/settings",
+    setting: (key: string) => `/admin/settings/${key}`,
+    auditLogs: "/admin/audit-logs",
+    payments: "/admin/payments",
+    payment: (id: string) => `/admin/payments/${id}`,
+  },
+} as const;
