@@ -85,7 +85,8 @@ export function CreatorProfileExperience({ username }: CreatorProfileExperienceP
   const achievements: Achievement[] = creator.achievements.map((item) => ({
     id: item.id,
     title: item.name,
-    icon: item.icon ?? "🏆",
+    icon: item.icon ?? item.slug,
+    slug: item.slug,
     description: item.description ?? "",
     isUnlocked: true,
   }));

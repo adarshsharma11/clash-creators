@@ -1,7 +1,8 @@
 export type Achievement = {
   id: string;
   title: string;
-  icon: string; // Emoji or Lucide icon name
+  icon: string;
+  slug?: string;
   description: string;
   isUnlocked: boolean;
 };

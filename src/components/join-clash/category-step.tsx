@@ -57,7 +57,7 @@ export function CategoryStep({ draft, errors, categories, onSelect }: CategorySt
                 />
               ) : null}
               <span className="relative z-10 flex h-9 w-9 items-center justify-center rounded-xl bg-secondary/70 text-primary">
-                <CategoryIcon name={category.icon} className="h-4 w-4" />
+                <CategoryIcon name={category.icon} slug={category.slug} label={category.name} className="h-4 w-4" />
               </span>
               <span className="relative z-10 text-sm font-bold">{category.name}</span>
             </button>

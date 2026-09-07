@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import type { Achievement } from "@/types/achievements";
 import { Award } from "lucide-react";
+import { AchievementIcon } from "@/components/ui/achievement-icon";
 
 interface AchievementsGridProps {
   achievements: Achievement[];
@@ -39,11 +40,16 @@ export function AchievementsGrid({ achievements }: AchievementsGridProps) {
                 }`}
               >
                 <div
-                  className={`h-16 w-16 rounded-full flex items-center justify-center text-3xl mb-4 ${
-                    unlocked ? "bg-primary/10 shadow-inner" : "bg-muted"
+                  className={`mb-4 flex h-16 w-16 items-center justify-center rounded-full ${
+                    unlocked ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                   }`}
                 >
-                  {unlocked ? achievement.icon : "🔒"}
+                  <AchievementIcon
+                    icon={achievement.icon}
+                    slug={achievement.slug}
+                    title={achievement.title}
+                    unlocked={unlocked}
+                  />
                 </div>
                 <h4 className={`font-bold mb-2 ${unlocked ? "text-foreground" : "text-muted-foreground"}`}>
                   {achievement.title}

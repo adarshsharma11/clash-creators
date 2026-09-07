@@ -42,7 +42,7 @@ export function CategoryList({ categories }: CategoryListProps) {
               className="flex flex-col items-center sm:items-start p-6 rounded-2xl border border-border/50 bg-card/30 hover:bg-card hover:border-primary/50 transition-all duration-300"
             >
               <div className="h-12 w-12 rounded-full bg-secondary/50 flex items-center justify-center mb-4 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                <CategoryIcon name={category.icon} className="h-6 w-6" />
+                <CategoryIcon name={category.icon} slug={category.slug} label={category.name} className="h-6 w-6" />
               </div>
               <h4 className="font-semibold text-lg mb-1">{category.name}</h4>
               <p className="text-sm text-muted-foreground">

@@ -13,6 +13,7 @@ import { useAdminAchievements } from "@/hooks/queries/use-admin-achievements";
 import { createAchievementSchema } from "@/lib/validations/admin";
 import { useAdminAuth } from "@/context/admin-auth-context";
 import { canDeleteAchievements } from "@/lib/admin-permissions";
+import { AchievementIcon } from "@/components/ui/achievement-icon";
 import { getApiErrorMessage } from "@/types/api";
 import type { Achievement } from "@/types/achievement";
 
@@ -39,7 +40,16 @@ export function AdminAchievementsPanel() {
   const columns: AdminTableColumn<Achievement>[] = [
     { id: "name", header: "Name", cell: (row) => <span className="font-semibold">{row.name}</span> },
     { id: "slug", header: "Slug", cell: (row) => row.slug },
-    { id: "icon", header: "Icon", cell: (row) => row.icon ?? "—" },
+    {
+      id: "icon",
+      header: "Icon",
+      cell: (row) => (
+        <span className="inline-flex items-center gap-2 text-primary">
+          <AchievementIcon icon={row.icon} slug={row.slug} title={row.name} className="h-4 w-4" />
+          <span className="text-xs text-muted-foreground">{row.icon ?? row.slug}</span>
+        </span>
+      ),
+    },
     { id: "description", header: "Description", cell: (row) => row.description ?? "—" },
     {
       id: "actions",

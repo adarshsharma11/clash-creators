@@ -1,51 +1,15 @@
-import {
-  BookOpen,
-  Clapperboard,
-  Cpu,
-  Dumbbell,
-  Gamepad2,
-  Hash,
-  LayoutGrid,
-  Music,
-  Shirt,
-  Smile,
-  Sparkles,
-  Utensils,
-  type LucideIcon,
-} from "lucide-react";
-
-const ICONS: Record<string, LucideIcon> = {
-  Book: BookOpen,
-  BookOpen,
-  Clapperboard,
-  Cpu,
-  Dumbbell,
-  Gamepad: Gamepad2,
-  Gamepad2,
-  Music,
-  Shirt,
-  Smile,
-  Sparkles,
-  Utensils,
-  book: BookOpen,
-  clapperboard: Clapperboard,
-  cpu: Cpu,
-  dumbbell: Dumbbell,
-  gamepad: Gamepad2,
-  music: Music,
-  shirt: Shirt,
-  smile: Smile,
-  sparkles: Sparkles,
-  utensils: Utensils,
-};
+import { LayoutGrid } from "lucide-react";
+import { resolveCategoryIcon } from "@/lib/brand-icons";
 
 interface CategoryIconProps {
-  name: string;
+  name?: string | null;
+  slug?: string | null;
+  label?: string | null;
   className?: string;
 }
 
-export function CategoryIcon({ name, className }: CategoryIconProps) {
-  const Icon = ICONS[name] ?? Hash;
+export function CategoryIcon({ name, slug, label, className }: CategoryIconProps) {
+  const Icon = resolveCategoryIcon(name, slug, label);
   return <Icon className={className} aria-hidden="true" />;
 }
 

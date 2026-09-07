@@ -22,7 +22,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
               className="flex items-start gap-3 transition-colors hover:text-primary"
             >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/70 text-primary">
-                <CategoryIcon name={category.icon} className="h-5 w-5" />
+                <CategoryIcon name={category.icon} slug={category.slug} label={category.name} className="h-5 w-5" />
               </span>
               <div className="min-w-0">
                 <h3 className="font-bold tracking-tight">{category.name}</h3>

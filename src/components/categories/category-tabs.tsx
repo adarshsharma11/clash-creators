@@ -103,8 +103,8 @@ export function CategoryTabs() {
                       }
                     />
                   ) : null}
-                  {tab.icon ? (
-                    <CategoryIcon name={tab.icon} className="h-3.5 w-3.5" />
+                  {tab.id !== "all" ? (
+                    <CategoryIcon name={tab.icon} slug={tab.id} label={tab.label} className="h-3.5 w-3.5" />
                   ) : (
                     <AllCategoriesIcon className="h-3.5 w-3.5" />
                   )}

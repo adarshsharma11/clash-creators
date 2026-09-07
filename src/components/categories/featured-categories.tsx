@@ -33,7 +33,7 @@ export function FeaturedCategories({ categories }: FeaturedCategoriesProps) {
           >
             <div className="mb-4 flex items-start justify-between gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/70 text-primary">
-                <CategoryIcon name={category.icon} className="h-5 w-5" />
+                <CategoryIcon name={category.icon} slug={category.slug} label={category.name} className="h-5 w-5" />
               </span>
               <span className="text-xs font-bold uppercase tracking-wider text-primary">
                 #{index + 1}
