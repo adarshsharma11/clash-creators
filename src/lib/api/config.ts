@@ -1,5 +1,4 @@
 export const API_PREFIX = "/api";
-export const API_BROWSER_PROXY = "";
 
 function trimTrailingSlashes(value: string): string {
   return value.replace(/\/+$/, "");
@@ -9,29 +8,26 @@ function trimLeadingSlashes(value: string): string {
   return value.replace(/^\/+/, "");
 }
 
-export function getApiBaseUrl(): string {
-  const raw = process.env.NEXT_BASE_API_URL?.trim();
+function readConfiguredApiOrigin(): string | undefined {
+  const raw = (process.env.NEXT_PUBLIC_API_URL ?? process.env.NEXT_BASE_API_URL)?.trim();
+  return raw ? trimTrailingSlashes(raw) : undefined;
+}
 
-  if (!raw) {
-    throw new Error("NEXT_BASE_API_URL is not set.");
+export function getApiBaseUrl(): string {
+  const origin = readConfiguredApiOrigin();
+
+  if (!origin) {
+    throw new Error("NEXT_PUBLIC_API_URL or NEXT_BASE_API_URL is not set.");
   }
 
-  return trimTrailingSlashes(raw);
+  return origin;
 }
 
 export function getApiUrl(): string {
-  if (typeof window !== "undefined") {
-    return `${API_BROWSER_PROXY}${API_PREFIX}`;
-  }
-
   return `${getApiBaseUrl()}${API_PREFIX}`;
 }
 
-const configuredApiBaseUrl = process.env.NEXT_BASE_API_URL?.trim();
-
-export const API_BASE_URL = configuredApiBaseUrl
-  ? trimTrailingSlashes(configuredApiBaseUrl)
-  : "";
+export const API_BASE_URL = readConfiguredApiOrigin() ?? "";
 
 export const API_URL = API_BASE_URL ? `${API_BASE_URL}${API_PREFIX}` : "";
 

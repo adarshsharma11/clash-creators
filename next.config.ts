@@ -21,7 +21,11 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    const backend = process.env.NEXT_BASE_API_URL?.replace(/\/+$/, "") ?? "http://localhost:6001";
+    const backend = (
+      process.env.NEXT_PUBLIC_API_URL ??
+      process.env.NEXT_BASE_API_URL ??
+      "http://localhost:6001"
+    ).replace(/\/+$/, "");
     return [
       {
         source: "/backend/:path*",
