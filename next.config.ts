@@ -1,8 +1,28 @@
 import type { NextConfig } from "next";
 
+function backendOrigin(): string {
+  const backend = (
+    process.env.NEXT_PUBLIC_API_URL ??
+    process.env.NEXT_BASE_API_URL ??
+    ""
+  )
+    .trim()
+    .replace(/^["']|["']$/g, "")
+    .replace(/\/+$/, "");
+
+  if (!backend) {
+    throw new Error("Set NEXT_BASE_API_URL to the backend origin.");
+  }
+
+  return backend;
+}
+
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  env: {
+    NEXT_BASE_API_URL: backendOrigin(),
+  },
   images: {
     remotePatterns: [
       {
@@ -21,15 +41,10 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    const backend = (
-      process.env.NEXT_PUBLIC_API_URL ??
-      process.env.NEXT_BASE_API_URL ??
-      "http://localhost:6001"
-    ).replace(/\/+$/, "");
     return [
       {
         source: "/backend/:path*",
-        destination: `${backend}/:path*`,
+        destination: `${backendOrigin()}/:path*`,
       },
     ];
   },

@@ -9,7 +9,9 @@ function trimLeadingSlashes(value: string): string {
 }
 
 function readConfiguredApiOrigin(): string | undefined {
-  const raw = (process.env.NEXT_PUBLIC_API_URL ?? process.env.NEXT_BASE_API_URL)?.trim();
+  const raw = (process.env.NEXT_PUBLIC_API_URL ?? process.env.NEXT_BASE_API_URL)
+    ?.trim()
+    .replace(/^["']|["']$/g, "");
   return raw ? trimTrailingSlashes(raw) : undefined;
 }
 
