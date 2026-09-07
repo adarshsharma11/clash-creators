@@ -28,8 +28,16 @@ export function toBattleStatus(status: ClashStatus, endsAt: string): BattleStatu
   return "scheduled";
 }
 
+export function resolveCreatorUsername(creator: {
+  username?: string | null;
+  displayName?: string | null;
+  user?: { username?: string | null } | null;
+}): string {
+  return creator.user?.username?.trim() || creator.username?.trim() || "";
+}
+
 export function creatorAvatarUrl(creator: ClashCreatorRef): string | null {
-  return creator.avatarUrl ?? creator.user.avatarUrl;
+  return creator.avatarUrl ?? creator.user?.avatarUrl ?? null;
 }
 
 export function isPrimarySocialVerified(accounts: CreatorSocialAccount[]): boolean {
@@ -39,9 +47,9 @@ export function isPrimarySocialVerified(accounts: CreatorSocialAccount[]): boole
 export function toCreatorFromDetail(creator: CreatorDetail): Creator {
   return {
     id: creator.id,
-    username: creator.user.username,
+    username: creator.user?.username ?? "",
     displayName: creator.displayName,
-    avatarUrl: creator.avatarUrl ?? creator.user.avatarUrl,
+    avatarUrl: creator.avatarUrl ?? creator.user?.avatarUrl ?? null,
     category: creator.category?.name,
     verified: isPrimarySocialVerified(creator.socialAccounts),
     bio: creator.bio,
@@ -60,37 +68,53 @@ export function toCreatorFromListItem(creator: CreatorListItem): Creator {
   };
 }
 
+export function creatorHandleLabel(creator: { username?: string | null; displayName?: string | null }): string {
+  return creator.username?.trim() || creator.displayName?.trim() || "creator";
+}
+
+export function creatorProfilePath(username: string | null | undefined): string | null {
+  const handle = username?.trim();
+  return handle ? `/creators/${handle}` : null;
+}
+
+export function creatorSupportPath(username: string | null | undefined): string | null {
+  const handle = username?.trim();
+  return handle ? `/support/${handle}` : null;
+}
+
+function toBattleCreator(creator: ClashCreatorRef): Creator {
+  return {
+    id: creator.id,
+    username: resolveCreatorUsername(creator),
+    displayName: creator.displayName || resolveCreatorUsername(creator) || "Creator",
+    avatarUrl: creatorAvatarUrl(creator),
+  };
+}
+
 export function toBattleEntryFromLeaderboard(item: ClashLeaderboardItem): BattleEntry | null {
   if (!item.creator) {
     return null;
   }
 
   return {
-    rank: item.rank,
+    rank: item.rank || 0,
     supportPoints: item.points,
-    creator: {
-      id: item.creator.id,
-      username: item.creator.user.username,
-      displayName: item.creator.displayName,
-      avatarUrl: creatorAvatarUrl(item.creator),
-    },
+    creator: toBattleCreator(item.creator),
   };
 }
 
-export function toBattleEntryFromParticipant(participant: ClashParticipant): BattleEntry | null {
-  if (participant.rank === null) {
+export function toBattleEntryFromParticipant(
+  participant: ClashParticipant,
+  index = 0
+): BattleEntry | null {
+  if (!participant.creator) {
     return null;
   }
 
   return {
-    rank: participant.rank,
+    rank: participant.rank ?? index + 1,
     supportPoints: participant.points,
-    creator: {
-      id: participant.creator.id,
-      username: participant.creator.user.username,
-      displayName: participant.creator.displayName,
-      avatarUrl: creatorAvatarUrl(participant.creator),
-    },
+    creator: toBattleCreator(participant.creator),
   };
 }
 
@@ -103,9 +127,32 @@ export function leaderboardToEntries(items: ClashLeaderboardItem[]): BattleEntry
 
 export function participantsToEntries(participants: ClashParticipant[]): BattleEntry[] {
   return participants
-    .map(toBattleEntryFromParticipant)
+    .map((participant, index) => toBattleEntryFromParticipant(participant, index))
     .filter((entry): entry is BattleEntry => entry !== null)
     .sort((left, right) => left.rank - right.rank);
+}
+
+export function mergeBattleEntries(primary: BattleEntry[], extra: BattleEntry[]): BattleEntry[] {
+  const byId = new Map<string, BattleEntry>();
+  for (const entry of extra) {
+    byId.set(entry.creator.id, entry);
+  }
+  for (const entry of primary) {
+    byId.set(entry.creator.id, entry);
+  }
+  return [...byId.values()].sort((left, right) => {
+    if (left.rank !== right.rank) {
+      return left.rank - right.rank;
+    }
+    return left.creator.displayName.localeCompare(right.creator.displayName);
+  });
+}
+
+export function clashEntriesFromSources(
+  leaderboard: ClashLeaderboardItem[] | undefined,
+  participants: ClashParticipant[] | undefined
+): BattleEntry[] {
+  return mergeBattleEntries(leaderboardToEntries(leaderboard ?? []), participantsToEntries(participants ?? []));
 }
 
 export function toBattleView(

@@ -7,8 +7,8 @@ import { HeroSection } from "@/components/home/hero-section";
 import { HowItWorks } from "@/components/home/how-it-works";
 import { Leaderboard } from "@/components/home/leaderboard";
 import { WinnersPreview } from "@/components/home/winners-preview";
-import { HomePageSkeleton } from "@/components/loading/home-page-skeleton";
 import { ApiRetryButton, ApiStatusPanel } from "@/components/ui/api-status-panel";
+import { SkeletonLeaderboardRow } from "@/components/ui/skeleton";
 import { CURRENT_BATTLE_ID } from "@/data/constants";
 import { useCategories } from "@/hooks/queries/use-categories";
 import { useClashLeaderboard, useLiveClash } from "@/hooks/queries/use-clashes";
@@ -24,58 +24,37 @@ export function HomeExperience() {
   const categoriesQuery = useCategories();
   const winnersQuery = useRecentWinners();
 
-  const clashPending = liveQuery.isPending || (Boolean(liveId) && leaderboardQuery.isPending && !leaderboardQuery.data);
-  const categoriesPending = categoriesQuery.isPending;
-  const winnersPending = winnersQuery.isPending;
-
-  if (clashPending && categoriesPending && winnersPending) {
-    return <HomePageSkeleton />;
-  }
-
-  if (liveQuery.isError) {
-    return (
-      <main className="container mx-auto max-w-5xl flex-1 px-4 py-16 sm:px-8">
-        <ApiStatusPanel
-          title="Unable to load today's clash"
-          message={getApiErrorMessage(liveQuery.error)}
-          action={<ApiRetryButton onRetry={() => void liveQuery.refetch()} isRetrying={liveQuery.isFetching} />}
-        />
-      </main>
-    );
-  }
-
-  if (liveId && leaderboardQuery.isError) {
-    return (
-      <main className="container mx-auto max-w-5xl flex-1 px-4 py-16 sm:px-8">
-        <ApiStatusPanel
-          title="Unable to load the leaderboard"
-          message={getApiErrorMessage(leaderboardQuery.error)}
-          action={
-            <ApiRetryButton
-              onRetry={() => void leaderboardQuery.refetch()}
-              isRetrying={leaderboardQuery.isFetching}
-            />
-          }
-        />
-      </main>
-    );
-  }
-
   const entries = leaderboardToEntries(leaderboardQuery.data?.items ?? []);
   const battle = liveClash ? toBattleView(liveClash, entries) : null;
   const clashHref = liveClash ? `/clash/${liveClash.slug}` : `/clash/${CURRENT_BATTLE_ID}`;
-  const todayStats = {
-    activeCreators: liveClash?.participantCount ?? entries.length,
-    supportPoints: entries.reduce((sum, entry) => sum + entry.supportPoints, 0),
-  };
 
   return (
     <main className="flex flex-1 flex-col">
-      <HeroSection clashHref={clashHref} todayStats={todayStats} />
+      <HeroSection />
 
       <div className="container mx-auto max-w-5xl px-4 sm:px-8">
         <section className="border-t border-border/40 py-12 md:py-20" id="creators">
-          {battle ? (
+          {liveQuery.isPending || (liveId && leaderboardQuery.isPending && !leaderboardQuery.data) ? (
+            <div aria-busy="true" aria-label="Loading leaderboard" className="space-y-3">
+              <SkeletonLeaderboardRow />
+              <SkeletonLeaderboardRow />
+              <SkeletonLeaderboardRow />
+            </div>
+          ) : liveQuery.isError || (liveId && leaderboardQuery.isError) ? (
+            <ApiStatusPanel
+              title="Unable to load the leaderboard"
+              message={getApiErrorMessage(liveQuery.error ?? leaderboardQuery.error)}
+              action={
+                <ApiRetryButton
+                  onRetry={() => {
+                    if (liveQuery.isError) void liveQuery.refetch();
+                    if (leaderboardQuery.isError) void leaderboardQuery.refetch();
+                  }}
+                  isRetrying={liveQuery.isFetching || leaderboardQuery.isFetching}
+                />
+              }
+            />
+          ) : battle ? (
             <>
               <BattleHeader battle={battle} />
               {entries.length === 0 ? (

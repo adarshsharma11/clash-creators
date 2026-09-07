@@ -1,10 +1,9 @@
 "use client";
 
 import { useCountdown } from "@/hooks/use-countdown";
-import { formatNumber } from "@/lib/formatters";
 import type { Battle } from "@/types/battle";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { Clock, Users, Trophy } from "lucide-react";
+import { Clock } from "lucide-react";
 
 interface BattleHeaderProps {
   battle: Battle;
@@ -12,63 +11,33 @@ interface BattleHeaderProps {
 
 export function BattleHeader({ battle }: BattleHeaderProps) {
   const time = useCountdown(battle.endsAt);
-  const totalSupport = battle.entries.reduce((sum, entry) => sum + entry.supportPoints, 0);
 
   return (
-    <div className="mb-12" id="explore">
-      <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
+    <div className="mb-10" id="explore">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <div className="flex items-center gap-3 mb-3">
+          <div className="mb-3 flex items-center gap-3">
             <StatusBadge status={battle.status ?? "LIVE"} />
-            <span className="text-sm font-bold tracking-wider text-muted-foreground uppercase">Today&apos;s Clash</span>
+            <span className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Leaderboard</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-2">
-            {battle.title}
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            {battle.summary} Who owns the crown?
-          </p>
+          <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">{battle.title}</h2>
         </div>
-
-        <div className="flex flex-wrap items-center gap-4 md:gap-8 bg-card border border-border/50 rounded-2xl p-4 md:p-6 shadow-sm">
-          <div className="flex flex-col">
-            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1 flex items-center gap-1">
-              <Clock className="h-3 w-3" /> Ends In
-            </span>
-            <div className="text-2xl md:text-3xl font-bold font-mono tabular-nums tracking-tighter text-foreground">
-              {time.isExpired ? (
-                <span className="text-destructive">ENDED</span>
-              ) : (
-                <>
-                  {time.hours.toString().padStart(2, "0")}:
-                  {time.minutes.toString().padStart(2, "0")}:
-                  {time.seconds.toString().padStart(2, "0")}
-                </>
-              )}
-            </div>
-          </div>
-          
-          <div className="h-10 w-px bg-border hidden sm:block"></div>
-          
-          <div className="flex flex-col">
-            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1 flex items-center gap-1">
-              <Users className="h-3 w-3" /> Creators
-            </span>
-            <div className="text-xl md:text-2xl font-bold text-foreground">
-              {battle.entries.length}
-            </div>
-          </div>
-          
-          <div className="h-10 w-px bg-border hidden sm:block"></div>
-          
-          <div className="flex flex-col">
-            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1 flex items-center gap-1">
-              <Trophy className="h-3 w-3" /> Support
-            </span>
-            <div className="text-xl md:text-2xl font-bold text-primary">
-              {formatNumber(totalSupport)}
-            </div>
-          </div>
+        <div className="text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5 font-semibold uppercase tracking-wider">
+            <Clock className="h-3.5 w-3.5" aria-hidden="true" />
+            Ends in
+          </span>
+          <p className="mt-1 font-mono text-2xl font-bold tabular-nums text-foreground">
+            {time.isExpired ? (
+              <span className="text-destructive">ENDED</span>
+            ) : (
+              <>
+                {time.hours.toString().padStart(2, "0")}:
+                {time.minutes.toString().padStart(2, "0")}:
+                {time.seconds.toString().padStart(2, "0")}
+              </>
+            )}
+          </p>
         </div>
       </div>
     </div>

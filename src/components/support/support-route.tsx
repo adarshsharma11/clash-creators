@@ -6,7 +6,7 @@ import { SupportPageSkeleton } from "@/components/loading/support-page-skeleton"
 import { ApiRetryButton, ApiStatusPanel } from "@/components/ui/api-status-panel";
 import { useClash, useClashLeaderboard } from "@/hooks/queries/use-clashes";
 import { useCreator } from "@/hooks/queries/use-creators";
-import { leaderboardToEntries, toBattleFromDetail, toCreatorFromDetail } from "@/lib/clash-view";
+import { clashEntriesFromSources, toBattleFromDetail, toCreatorFromDetail } from "@/lib/clash-view";
 import { ApiError, getApiErrorMessage } from "@/types/api";
 
 interface SupportRouteProps {
@@ -73,7 +73,7 @@ export function SupportRoute({ username }: SupportRouteProps) {
   }
 
   const creator = toCreatorFromDetail(creatorQuery.data);
-  const entries = leaderboardToEntries(leaderboardQuery.data?.items ?? []);
+  const entries = clashEntriesFromSources(leaderboardQuery.data?.items, clashQuery.data?.participants);
   const battle = clashQuery.data ? toBattleFromDetail(clashQuery.data, entries) : null;
   const entry = battle?.entries.find((item) => item.creator.id === creator.id) ?? null;
 

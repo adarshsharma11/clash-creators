@@ -9,6 +9,7 @@ import { useCategories } from "@/hooks/queries/use-categories";
 import { useWinners } from "@/hooks/queries/use-winners";
 import { toHallOfFameWinner } from "@/lib/api/winners";
 import { getApiErrorMessage } from "@/types/api";
+import type { HallOfFameWinner } from "@/types/winner";
 
 export function WinnersExperience() {
   const [page, setPage] = useState(1);
@@ -21,7 +22,10 @@ export function WinnersExperience() {
   });
 
   const winners = useMemo(
-    () => (winnersQuery.data?.items ?? []).map(toHallOfFameWinner),
+    () =>
+      (winnersQuery.data?.items ?? [])
+        .map(toHallOfFameWinner)
+        .filter((winner): winner is HallOfFameWinner => winner !== null),
     [winnersQuery.data?.items]
   );
   const pagination = winnersQuery.data?.pagination;

@@ -7,7 +7,7 @@ import { CURRENT_BATTLE_ID } from "@/data/constants";
 import { useCategory } from "@/hooks/queries/use-categories";
 import { useClashLeaderboard, useLiveClash } from "@/hooks/queries/use-clashes";
 import { useCreators } from "@/hooks/queries/use-creators";
-import { isPrimarySocialVerified } from "@/lib/clash-view";
+import { isPrimarySocialVerified, resolveCreatorUsername } from "@/lib/clash-view";
 import type { CategoryListItem } from "@/lib/category-rankings";
 import { ApiError, getApiErrorMessage } from "@/types/api";
 import Link from "next/link";
@@ -133,9 +133,9 @@ export function CategoryDetailRoute({ slug }: { slug: string }) {
   const todayLeaders: CategoryListItem[] = (leaderboardQuery.data?.items ?? [])
     .filter((item) => item.creator && categoryCreatorIds.has(item.creator.id))
     .map((item) => ({
-      username: item.creator?.user.username ?? "",
+      username: item.creator ? resolveCreatorUsername(item.creator) : "",
       displayName: item.creator?.displayName ?? "",
-      avatarUrl: item.creator?.avatarUrl ?? item.creator?.user.avatarUrl ?? "",
+      avatarUrl: item.creator?.avatarUrl ?? item.creator?.user?.avatarUrl ?? "",
       verified: false,
       supportPoints: item.points,
       followers: 0,

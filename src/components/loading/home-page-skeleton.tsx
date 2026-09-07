@@ -9,15 +9,18 @@ import {
 export function HomePageSkeleton() {
   return (
     <PageLoader label="Loading ClashCreators">
-      <div className="flex flex-col items-center px-4 pb-20 pt-24 sm:px-8 md:pt-32">
-        <Skeleton className="mb-8 h-8 w-40 rounded-full" />
-        <Skeleton className="mb-4 h-16 w-full max-w-xl sm:h-20" />
-        <Skeleton className="mb-10 h-6 w-full max-w-md" />
-        <Skeleton className="mb-10 h-28 w-full max-w-xl rounded-3xl" />
-        <div className="flex w-full max-w-md flex-col gap-3 sm:flex-row">
-          <SkeletonButton className="h-14 w-full sm:flex-1" />
-          <SkeletonButton className="h-14 w-full sm:flex-1" />
+      <div className="container mx-auto grid gap-10 px-4 pb-16 pt-16 sm:px-8 md:pt-20 lg:grid-cols-[1.15fr_22rem]">
+        <div>
+          <Skeleton className="mb-5 h-4 w-28 rounded-full" />
+          <Skeleton className="mb-3 h-12 w-full max-w-md" />
+          <Skeleton className="mb-6 h-12 w-full max-w-sm" />
+          <SkeletonText className="mb-8 h-5 w-72" />
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <SkeletonButton className="h-12 w-full sm:w-48" />
+            <SkeletonButton className="h-12 w-full sm:w-40" />
+          </div>
         </div>
+        <Skeleton className="h-56 w-full rounded-2xl" />
       </div>
 
       <div className="container mx-auto max-w-5xl space-y-6 px-4 pb-16 sm:px-8">

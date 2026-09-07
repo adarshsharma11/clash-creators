@@ -30,12 +30,13 @@ export type WinnerListItem = {
     id: string;
     displayName: string;
     avatarUrl: string | null;
-    user: {
+    username?: string | null;
+    user?: {
       username: string;
       fullName: string;
       avatarUrl: string | null;
-    };
-  };
+    } | null;
+  } | null;
   clash: {
     id: string;
     title: string;

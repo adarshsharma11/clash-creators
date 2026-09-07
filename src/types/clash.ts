@@ -7,16 +7,19 @@ export type ClashCategoryRef = {
   icon: string | null;
 };
 
+export type ClashCreatorUserRef = {
+  username: string;
+  fullName: string;
+  avatarUrl: string | null;
+};
+
 export type ClashCreatorRef = {
   id: string;
   displayName: string;
   avatarUrl: string | null;
+  username?: string | null;
   status?: string;
-  user: {
-    username: string;
-    fullName: string;
-    avatarUrl: string | null;
-  };
+  user?: ClashCreatorUserRef | null;
 };
 
 export type ClashListItem = {

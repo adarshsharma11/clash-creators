@@ -7,6 +7,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { creatorHandleLabel, creatorProfilePath, creatorSupportPath } from "@/lib/clash-view";
 import { formatPoints, formatNumber } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import { ChevronUp, ChevronDown, Minus, Flame } from "lucide-react";
@@ -30,6 +31,9 @@ export function LeaderboardRow({
   const rankChange = (entry.previousRank || entry.rank) - entry.rank;
   const distanceToNext = nextEntry ? nextEntry.supportPoints - entry.supportPoints : 0;
   const isTopThree = entry.rank <= 3;
+  const profileHref = creatorProfilePath(entry.creator.username);
+  const supportHref = creatorSupportPath(entry.creator.username);
+  const handle = creatorHandleLabel(entry.creator);
   const movementLabel =
     entry.previousRank === undefined
       ? "New"
@@ -80,33 +84,55 @@ export function LeaderboardRow({
             ) : null}
           </div>
 
-          <Link href={`/creators/${entry.creator.username}`} className="flex min-w-0 flex-1 items-center gap-3">
-            <Avatar
-              src={entry.creator.avatarUrl}
-              alt={entry.creator.displayName}
-              fallback={entry.creator.displayName}
-              className={cn("h-11 w-11 shrink-0", isTopThree && "sm:h-12 sm:w-12")}
-            />
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="truncate font-bold">{entry.creator.displayName}</span>
-                {entry.creator.verified ? (
-                  <Badge
-                    variant="secondary"
-                    className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 p-0 text-white"
-                  >
-                    <span className="sr-only">Verified</span>✓
-                  </Badge>
-                ) : null}
-                {highlighted ? (
-                  <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
-                    You
-                  </span>
-                ) : null}
+          {profileHref ? (
+            <Link href={profileHref} className="flex min-w-0 flex-1 items-center gap-3">
+              <Avatar
+                src={entry.creator.avatarUrl}
+                alt={entry.creator.displayName}
+                fallback={entry.creator.displayName}
+                className={cn("h-11 w-11 shrink-0", isTopThree && "sm:h-12 sm:w-12")}
+              />
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="truncate font-bold">{entry.creator.displayName}</span>
+                  {entry.creator.verified ? (
+                    <Badge
+                      variant="secondary"
+                      className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 p-0 text-white"
+                    >
+                      <span className="sr-only">Verified</span>✓
+                    </Badge>
+                  ) : null}
+                  {highlighted ? (
+                    <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                      You
+                    </span>
+                  ) : null}
+                </div>
+                <p className="truncate text-xs text-muted-foreground sm:text-sm">@{handle}</p>
               </div>
-              <p className="truncate text-xs text-muted-foreground sm:text-sm">@{entry.creator.username}</p>
+            </Link>
+          ) : (
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <Avatar
+                src={entry.creator.avatarUrl}
+                alt={entry.creator.displayName}
+                fallback={entry.creator.displayName}
+                className={cn("h-11 w-11 shrink-0", isTopThree && "sm:h-12 sm:w-12")}
+              />
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="truncate font-bold">{entry.creator.displayName}</span>
+                  {highlighted ? (
+                    <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                      You
+                    </span>
+                  ) : null}
+                </div>
+                <p className="truncate text-xs text-muted-foreground sm:text-sm">@{handle}</p>
+              </div>
             </div>
-          </Link>
+          )}
         </div>
 
         <div className="flex items-center justify-between gap-3 sm:ml-auto sm:w-auto sm:min-w-[220px] sm:flex-col sm:items-end">
@@ -142,9 +168,11 @@ export function LeaderboardRow({
                       : "bg-primary"
               }
             />
-            <Button asChild size="sm" className="h-9 shrink-0 bg-primary text-primary-foreground">
-              <Link href={`/support/${entry.creator.username}`}>Support</Link>
-            </Button>
+            {supportHref ? (
+              <Button asChild size="sm" className="h-9 shrink-0 bg-primary text-primary-foreground">
+                <Link href={supportHref}>Support</Link>
+              </Button>
+            ) : null}
           </div>
         </div>
       </div>

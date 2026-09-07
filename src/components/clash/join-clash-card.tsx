@@ -20,8 +20,8 @@ import { joinClashIdentitySchema, joinClashSchema } from "@/lib/validations/join
 import type { ClashListItem } from "@/types/clash";
 import type { SocialPlatform } from "@/types/creator";
 
-export type JoinClashCardVariant = "hero" | "page" | "compact";
-type JoinStep = "details" | "clash" | "confirm" | "success";
+export type JoinClashCardVariant = "hero" | "page" | "compact" | "modal";
+type JoinStep = "details" | "username" | "platform" | "clash" | "confirm" | "success";
 
 interface JoinClashCardProps {
   variant?: JoinClashCardVariant;
@@ -46,7 +46,7 @@ export function JoinClashCard({
   const clashOptions = useAvailableClashes();
   const joinMutation = useJoinClash();
 
-  const [step, setStep] = useState<JoinStep>("details");
+  const [step, setStep] = useState<JoinStep>(variant === "modal" ? "username" : "details");
   const [username, setUsername] = useState("");
   const [platform, setPlatform] = useState<SocialPlatform | "">("");
   const [pickedClashId, setPickedClashId] = useState<string | null>(null);
@@ -66,6 +66,7 @@ export function JoinClashCard({
     (variant === "hero"
       ? "Your creator. Today's clash."
       : "Represent your community. Pick your platform. Join the clash.");
+  const isModal = variant === "modal";
 
   const compactClosed =
     variant === "compact" && lockedClash && !getReasonablyJoinableClashes([lockedClash]).length
@@ -142,10 +143,13 @@ export function JoinClashCard({
   };
 
   const cardClass = cn(
-    "w-full rounded-3xl border border-amber-500/20 bg-card/70 text-left shadow-[0_0_0_1px_rgba(245,158,11,0.06)]",
+    "w-full text-left",
+    !isModal &&
+      "rounded-3xl border border-amber-500/20 bg-card/70 shadow-[0_0_0_1px_rgba(245,158,11,0.06)]",
     variant === "hero" && "mx-auto max-w-md p-5 sm:p-6",
     variant === "page" && "p-5 sm:p-8",
     variant === "compact" && "p-5",
+    isModal && "p-0",
     className
   );
 
@@ -188,7 +192,7 @@ export function JoinClashCard({
         <p className="mt-4 text-sm text-muted-foreground">
           Platform: {getSocialPlatformMeta(platform).label}
         </p>
-        <p className="mt-2 text-sm text-muted-foreground">You&apos;ll appear in the clash once the battle begins.</p>
+        <p className="mt-2 text-sm text-muted-foreground">You&apos;re on the clash roster. Open the clash to see your name.</p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Button asChild className="h-11 flex-1 font-bold">
             <Link href={href}>View Clash</Link>
@@ -207,11 +211,17 @@ export function JoinClashCard({
 
   return (
     <div id={frameId} className={cardClass}>
-      <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">{heading}</p>
-      <h3 className="mt-2 text-xl font-extrabold tracking-tight sm:text-2xl">
-        {variant === "hero" ? "Are you ready to compete?" : copy}
-      </h3>
-      {variant === "hero" ? <p className="mt-1 text-sm text-muted-foreground">{copy}</p> : null}
+      {isModal ? (
+        <ModalStepIndicator current={step} />
+      ) : (
+        <>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">{heading}</p>
+          <h3 className="mt-2 text-xl font-extrabold tracking-tight sm:text-2xl">
+            {variant === "hero" ? "Are you ready to compete?" : copy}
+          </h3>
+          {variant === "hero" ? <p className="mt-1 text-sm text-muted-foreground">{copy}</p> : null}
+        </>
+      )}
 
       {clashOptions.isError ? (
         <div className="mt-5" role="alert">
@@ -237,6 +247,48 @@ export function JoinClashCard({
             transition={{ duration: reduceMotion ? 0.12 : 0.2 }}
             className="mt-5"
           >
+            {step === "username" ? (
+              <UsernameStep
+                username={username}
+                usernameId={usernameId}
+                error={fieldError}
+                onUsernameChange={(value) => {
+                  setUsername(value);
+                  setFieldError(null);
+                }}
+                onContinue={() => {
+                  const parsed = joinClashIdentitySchema.pick({ username: true }).safeParse({ username });
+                  if (!parsed.success) {
+                    setFieldError(parsed.error.issues[0]?.message ?? "Enter your creator username.");
+                    return;
+                  }
+                  setUsername(parsed.data.username);
+                  setFieldError(null);
+                  setStep("platform");
+                }}
+              />
+            ) : null}
+
+            {step === "platform" ? (
+              <PlatformStep
+                platform={platform}
+                error={fieldError}
+                onPlatformChange={(value) => {
+                  setPlatform(value);
+                  setFieldError(null);
+                }}
+                onContinue={() => {
+                  if (!platform) {
+                    setFieldError("Choose your main platform.");
+                    return;
+                  }
+                  setFieldError(null);
+                  goToAfterDetails();
+                }}
+                onBack={() => setStep("username")}
+              />
+            ) : null}
+
             {step === "details" ? (
               <DetailsStep
                 variant={variant}
@@ -268,7 +320,7 @@ export function JoinClashCard({
                   setFieldError(null);
                 }}
                 onContinue={handleClashContinue}
-                onBack={() => setStep("details")}
+                onBack={() => setStep(isModal ? "platform" : "details")}
               />
             ) : null}
 
@@ -282,7 +334,7 @@ export function JoinClashCard({
                 onJoin={handleJoin}
                 onEdit={() => {
                   setJoinError(null);
-                  setStep("details");
+                  setStep(isModal ? "username" : "details");
                 }}
                 onRetry={handleJoin}
               />
@@ -290,6 +342,137 @@ export function JoinClashCard({
           </motion.div>
         </AnimatePresence>
       )}
+    </div>
+  );
+}
+
+function ModalStepIndicator({ current }: { current: JoinStep }) {
+  const active =
+    current === "username" ? 0 : current === "platform" ? 1 : 2;
+  const items = ["Creator", "Platform", "Join"];
+
+  return (
+    <ol className="mb-5 flex flex-wrap items-center gap-1 text-xs font-semibold" aria-label="Join progress">
+      {items.map((label, index) => (
+        <li key={label} className="flex items-center gap-1">
+          <span className={index === active ? "text-primary" : "text-muted-foreground"} aria-current={index === active ? "step" : undefined}>
+            {String(index + 1).padStart(2, "0")} {label}
+          </span>
+          {index < items.length - 1 ? <span className="text-muted-foreground">→</span> : null}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function UsernameStep({
+  username,
+  usernameId,
+  error,
+  onUsernameChange,
+  onContinue,
+}: {
+  username: string;
+  usernameId: string;
+  error: string | null;
+  onUsernameChange: (value: string) => void;
+  onContinue: () => void;
+}) {
+  return (
+    <form
+      className="space-y-4"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onContinue();
+      }}
+    >
+      <div>
+        <label htmlFor={usernameId} className="mb-1.5 block text-sm font-semibold">
+          What&apos;s your creator username?
+        </label>
+        <div className="relative">
+          <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">@</span>
+          <input
+            id={usernameId}
+            name="username"
+            autoComplete="username"
+            placeholder="learn_with_sam"
+            value={username}
+            onChange={(event) => onUsernameChange(event.target.value)}
+            aria-describedby={`${usernameId}-hint${error ? ` ${usernameId}-error` : ""}`}
+            aria-invalid={Boolean(error)}
+            className="h-12 w-full rounded-xl border border-border/50 bg-background/70 pl-9 pr-4 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
+        </div>
+        <p id={`${usernameId}-hint`} className="mt-1.5 text-xs text-muted-foreground">
+          Use the username your audience knows you by.
+        </p>
+      </div>
+      {error ? (
+        <p id={`${usernameId}-error`} role="alert" className="text-sm text-red-400">
+          {error}
+        </p>
+      ) : null}
+      <Button type="submit" className="h-12 w-full font-bold">
+        Continue
+      </Button>
+    </form>
+  );
+}
+
+function PlatformStep({
+  platform,
+  error,
+  onPlatformChange,
+  onContinue,
+  onBack,
+}: {
+  platform: SocialPlatform | "";
+  error: string | null;
+  onPlatformChange: (value: SocialPlatform) => void;
+  onContinue: () => void;
+  onBack: () => void;
+}) {
+  return (
+    <div className="space-y-4">
+      <fieldset>
+        <legend className="mb-2 text-sm font-semibold">Choose your main platform</legend>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {SOCIAL_PLATFORMS.map((item) => {
+            const selected = platform === item;
+            return (
+              <button
+                key={item}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => onPlatformChange(item)}
+                className={cn(
+                  "flex h-12 items-center justify-center gap-2 rounded-xl border px-3 text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  selected
+                    ? "border-primary bg-primary/15 text-primary"
+                    : "border-border/50 bg-background/50 text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                )}
+              >
+                <SocialPlatformIcon platform={item} className="h-4 w-4" />
+                <span>{getSocialPlatformMeta(item).label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </fieldset>
+      {error ? (
+        <p role="alert" className="text-sm text-red-400">
+          {error}
+        </p>
+      ) : null}
+      <div className="flex flex-col-reverse gap-3 sm:flex-row">
+        <Button type="button" variant="outline" className="h-12 flex-1" onClick={onBack}>
+          Back
+        </Button>
+        <Button type="button" className="h-12 flex-1 font-bold" onClick={onContinue}>
+          Continue
+        </Button>
+      </div>
     </div>
   );
 }

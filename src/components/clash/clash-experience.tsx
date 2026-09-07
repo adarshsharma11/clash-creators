@@ -12,7 +12,7 @@ import { ApiRetryButton, ApiStatusPanel } from "@/components/ui/api-status-panel
 import { usePrefetchCreator } from "@/hooks/queries/use-creators";
 import { useClash, useClashLeaderboard, useLiveClash } from "@/hooks/queries/use-clashes";
 import { CURRENT_BATTLE_ID } from "@/data/constants";
-import { leaderboardToEntries, toBattleFromDetail } from "@/lib/clash-view";
+import { clashEntriesFromSources, creatorHandleLabel, creatorProfilePath, toBattleFromDetail } from "@/lib/clash-view";
 import { ApiError, getApiErrorMessage } from "@/types/api";
 
 interface ClashExperienceProps {
@@ -28,7 +28,7 @@ export function ClashExperience({ clashId }: ClashExperienceProps) {
   const leaderboardQuery = useClashLeaderboard(resolvedId, { limit: 50 }, Boolean(resolvedId));
   const prefetchCreator = usePrefetchCreator();
 
-  if (waitingForLive || clashQuery.isPending || (resolvedId && leaderboardQuery.isPending && !leaderboardQuery.data)) {
+  if (waitingForLive || clashQuery.isPending) {
     return <ClashPageSkeleton />;
   }
 
@@ -71,29 +71,12 @@ export function ClashExperience({ clashId }: ClashExperienceProps) {
     );
   }
 
-  if (leaderboardQuery.isError) {
-    return (
-      <main className="container mx-auto max-w-5xl flex-1 px-4 py-16 sm:px-8">
-        <ApiStatusPanel
-          title="Unable to load the leaderboard"
-          message={getApiErrorMessage(leaderboardQuery.error)}
-          action={
-            <ApiRetryButton
-              onRetry={() => void leaderboardQuery.refetch()}
-              isRetrying={leaderboardQuery.isFetching}
-            />
-          }
-        />
-      </main>
-    );
-  }
-
   const clash = clashQuery.data;
   if (!clash) {
     notFound();
   }
 
-  const entries = leaderboardToEntries(leaderboardQuery.data?.items ?? []);
+  const entries = clashEntriesFromSources(leaderboardQuery.data?.items, clash.participants);
   const battle = toBattleFromDetail(clash, entries);
   const moreCreators = entries.slice(10, 14).map((entry) => entry.creator);
 
@@ -110,18 +93,22 @@ export function ClashExperience({ clashId }: ClashExperienceProps) {
 
       <BattleHero battle={battle} />
 
-      {clash.status === "UPCOMING" || clash.status === "LIVE" ? (
-        <div className="container mx-auto max-w-xl px-4 pb-10 sm:px-8">
-          <JoinClashCard
-            variant="compact"
-            clashId={clash.slug}
-            title="Want to enter the battle?"
-            description="Add your creator username and main platform to join this clash."
-          />
-        </div>
-      ) : null}
-
       <div className="container mx-auto max-w-5xl px-4 sm:px-8">
+        {leaderboardQuery.isError ? (
+          <div className="mb-8">
+            <ApiStatusPanel
+              title="Unable to load the live ranking"
+              message={getApiErrorMessage(leaderboardQuery.error)}
+              action={
+                <ApiRetryButton
+                  onRetry={() => void leaderboardQuery.refetch()}
+                  isRetrying={leaderboardQuery.isFetching}
+                />
+              }
+            />
+          </div>
+        ) : null}
+
         {entries.length === 0 ? (
           <div className="py-16">
             <ApiStatusPanel
@@ -141,14 +128,11 @@ export function ClashExperience({ clashId }: ClashExperienceProps) {
             </div>
 
             <ul className="divide-y divide-border/40">
-              {moreCreators.map((creator) => (
-                <li key={creator.id}>
-                  <Link
-                    href={`/creators/${creator.username}`}
-                    onMouseEnter={() => prefetchCreator(creator.username)}
-                    onFocus={() => prefetchCreator(creator.username)}
-                    className="group flex items-center gap-4 py-4 transition-colors hover:text-primary"
-                  >
+              {moreCreators.map((creator) => {
+                const profileHref = creatorProfilePath(creator.username);
+                const handle = creatorHandleLabel(creator);
+                const content = (
+                  <>
                     <Avatar
                       src={creator.avatarUrl ?? undefined}
                       alt={creator.displayName}
@@ -158,13 +142,30 @@ export function ClashExperience({ clashId }: ClashExperienceProps) {
                     <div className="min-w-0 flex-1">
                       <div className="truncate font-semibold">{creator.displayName}</div>
                       <div className="truncate text-sm text-muted-foreground">
-                        @{creator.username}
+                        @{handle}
                         {creator.category ? ` · ${creator.category}` : ""}
                       </div>
                     </div>
-                  </Link>
-                </li>
-              ))}
+                  </>
+                );
+
+                return (
+                  <li key={creator.id}>
+                    {profileHref ? (
+                      <Link
+                        href={profileHref}
+                        onMouseEnter={() => prefetchCreator(creator.username)}
+                        onFocus={() => prefetchCreator(creator.username)}
+                        className="group flex items-center gap-4 py-4 transition-colors hover:text-primary"
+                      >
+                        {content}
+                      </Link>
+                    ) : (
+                      <div className="flex items-center gap-4 py-4">{content}</div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </section>
         ) : null}
