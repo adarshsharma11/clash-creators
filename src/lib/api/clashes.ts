@@ -46,6 +46,24 @@ export async function getLiveClash(signal?: AbortSignal): Promise<ClashListItem 
   return result.items[0] ?? null;
 }
 
-export function joinClash(id: string, signal?: AbortSignal): Promise<JoinClashResult> {
-  return apiClient.post<JoinClashResult>(API_ENDPOINTS.clashes.join(id), undefined, { signal });
+export type JoinClashPayload = {
+  username: string;
+  platform: string;
+};
+
+export function joinClash(
+  id: string,
+  payload?: JoinClashPayload,
+  signal?: AbortSignal
+): Promise<JoinClashResult> {
+  return apiClient.post<JoinClashResult>(
+    API_ENDPOINTS.clashes.join(id),
+    payload
+      ? {
+          username: payload.username,
+          platform: payload.platform,
+        }
+      : undefined,
+    { signal }
+  );
 }

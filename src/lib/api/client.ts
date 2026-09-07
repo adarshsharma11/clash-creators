@@ -68,6 +68,9 @@ function readErrorList(payload: unknown): string[] {
 
 function shouldNotifyUnauthorized(path: string): boolean {
   const normalized = path.split("?")[0];
+  if (/^\/clashes\/[^/]+\/join$/.test(normalized)) {
+    return false;
+  }
   return ![
     "/auth/me",
     "/auth/login",

@@ -3,7 +3,7 @@ import { JoinClashExperience } from "@/components/join-clash/join-clash-experien
 
 export const metadata: Metadata = {
   title: "Join a Clash — ClashCreators",
-  description: "Enter the ClashCreators competition and get ready to compete.",
+  description: "Enter your creator username, pick a platform, and join today's clash.",
 };
 
 export default function JoinClashPage() {

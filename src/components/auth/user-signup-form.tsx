@@ -10,10 +10,16 @@ import { getSafeRedirectPath } from "@/lib/safe-redirect";
 import { userSignupSchema } from "@/lib/validations/auth";
 import { getApiValidationErrors, getLoginErrorMessage } from "@/types/api";
 
-export function UserSignupForm() {
+interface UserSignupFormProps {
+  onSuccess?: () => void;
+  onSwitchToLogin?: () => void;
+}
+
+export function UserSignupForm({ onSuccess, onSwitchToLogin }: UserSignupFormProps = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signup } = useAuth();
+  const embedded = Boolean(onSuccess);
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -47,7 +53,11 @@ export function UserSignupForm() {
     setSubmitting(true);
     try {
       await signup(parsed.data);
-      router.replace(getSafeRedirectPath(searchParams.get("next")));
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.replace(getSafeRedirectPath(searchParams.get("next")));
+      }
     } catch (mutationError) {
       const validation = getApiValidationErrors(mutationError);
       setError(validation[0] ?? getLoginErrorMessage(mutationError));
@@ -62,11 +72,11 @@ export function UserSignupForm() {
   return (
     <form className="space-y-4" onSubmit={(event) => void handleSubmit(event)}>
       <div>
-        <label htmlFor="signup-full-name" className="mb-1.5 block text-sm font-semibold">
+        <label htmlFor={embedded ? "join-signup-full-name" : "signup-full-name"} className="mb-1.5 block text-sm font-semibold">
           Full name
         </label>
         <input
-          id="signup-full-name"
+          id={embedded ? "join-signup-full-name" : "signup-full-name"}
           autoComplete="name"
           autoFocus
           value={fullName}
@@ -76,21 +86,21 @@ export function UserSignupForm() {
         {fieldErrors.fullName ? <p className="mt-1 text-xs text-red-400">{fieldErrors.fullName}</p> : null}
       </div>
       <div>
-        <label htmlFor="signup-username" className="mb-1.5 block text-sm font-semibold">
+        <label htmlFor={embedded ? "join-signup-username" : "signup-username"} className="mb-1.5 block text-sm font-semibold">
           Username
         </label>
-        <input id="signup-username" autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} className={inputClass} />
+        <input id={embedded ? "join-signup-username" : "signup-username"} autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} className={inputClass} />
         {fieldErrors.username ? <p className="mt-1 text-xs text-red-400">{fieldErrors.username}</p> : null}
       </div>
       <div>
-        <label htmlFor="signup-email" className="mb-1.5 block text-sm font-semibold">
+        <label htmlFor={embedded ? "join-signup-email" : "signup-email"} className="mb-1.5 block text-sm font-semibold">
           Email
         </label>
-        <input id="signup-email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className={inputClass} />
+        <input id={embedded ? "join-signup-email" : "signup-email"} type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className={inputClass} />
         {fieldErrors.email ? <p className="mt-1 text-xs text-red-400">{fieldErrors.email}</p> : null}
       </div>
       <PasswordField
-        id="signup-password"
+        id={embedded ? "join-signup-password" : "signup-password"}
         label="Password"
         autoComplete="new-password"
         value={password}
@@ -107,9 +117,15 @@ export function UserSignupForm() {
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="font-semibold text-primary hover:text-primary/80">
-          Sign in
-        </Link>
+        {onSwitchToLogin ? (
+          <button type="button" className="font-semibold text-primary hover:text-primary/80" onClick={onSwitchToLogin}>
+            Sign in
+          </button>
+        ) : (
+          <Link href="/login" className="font-semibold text-primary hover:text-primary/80">
+            Sign in
+          </Link>
+        )}
       </p>
     </form>
   );

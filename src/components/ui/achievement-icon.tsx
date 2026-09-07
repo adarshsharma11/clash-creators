@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import { Lock } from "lucide-react";
 import { resolveAchievementIcon } from "@/lib/brand-icons";
 import { cn } from "@/lib/utils";
@@ -17,7 +18,8 @@ export function AchievementIcon({
   unlocked = true,
   className,
 }: AchievementIconProps) {
-  const Icon = unlocked ? resolveAchievementIcon(icon, slug, title) : Lock;
-
-  return <Icon className={cn("h-7 w-7", className)} aria-hidden="true" />;
+  return createElement(unlocked ? resolveAchievementIcon(icon, slug, title) : Lock, {
+    className: cn("h-7 w-7", className),
+    "aria-hidden": true,
+  });
 }

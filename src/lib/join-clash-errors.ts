@@ -2,11 +2,11 @@ import { ApiError } from "@/types/api";
 
 export function getJoinClashErrorMessage(error: unknown): string {
   if (!(error instanceof ApiError)) {
-    return "Unable to join this clash right now.";
+    return "Something went wrong. Please try again.";
   }
 
   if (error.status === 401) {
-    return "Sign in with a creator account to join a clash.";
+    return "Creator joining is being finalized. Please try again shortly.";
   }
 
   if (error.status === 404) {
@@ -14,42 +14,60 @@ export function getJoinClashErrorMessage(error: unknown): string {
   }
 
   if (error.status === 409) {
-    return "You have already joined this clash.";
+    return "You're already participating in this clash.";
+  }
+
+  if (error.status === 0) {
+    return "We couldn't join the clash. Please check your connection and try again.";
+  }
+
+  if (error.status >= 500) {
+    return "Something went wrong. Please try again.";
+  }
+
+  const message = error.message.toLowerCase();
+
+  if (message.includes("already joined") || message.includes("already participating")) {
+    return "You're already participating in this clash.";
+  }
+
+  if (message.includes("clash is full") || message.includes("this clash is full")) {
+    return "This clash is full.";
+  }
+
+  if (
+    message.includes("only join upcoming") ||
+    message.includes("no longer accepting") ||
+    message.includes("clash is closed") ||
+    message.includes("not accepting")
+  ) {
+    return "This clash is no longer accepting participants.";
+  }
+
+  if (message.includes("already ended") || message.includes("completed")) {
+    return "This clash has already ended.";
   }
 
   if (error.status === 422) {
     return "Some of the submitted values are invalid.";
   }
 
-  if (error.status === 0) {
-    return "Unable to reach the server. Check your connection and try again.";
+  if (error.status === 403) {
+    return "This clash is no longer accepting participants.";
   }
 
-  if (error.status >= 500) {
-    return "The server is unavailable right now.";
+  return "Something went wrong. Please try again.";
+}
+
+export function isAlreadyJoinedError(error: unknown): boolean {
+  if (!(error instanceof ApiError)) {
+    return false;
+  }
+
+  if (error.status === 409) {
+    return true;
   }
 
   const message = error.message.toLowerCase();
-
-  if (message.includes("creator profile")) {
-    return "A creator profile is required to join a clash.";
-  }
-
-  if (message.includes("only active creators")) {
-    return "Only active creators can join clashes.";
-  }
-
-  if (message.includes("already joined")) {
-    return "You have already joined this clash.";
-  }
-
-  if (message.includes("only join upcoming") || message.includes("already ended") || message.includes("clash is full")) {
-    return error.message;
-  }
-
-  if (error.status === 403) {
-    return error.message || "You can't join this clash right now.";
-  }
-
-  return error.message || "Unable to join this clash right now.";
+  return message.includes("already joined") || message.includes("already participating");
 }

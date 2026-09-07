@@ -10,10 +10,16 @@ import { getSafeRedirectPath } from "@/lib/safe-redirect";
 import { userLoginSchema } from "@/lib/validations/auth";
 import { getLoginErrorMessage } from "@/types/api";
 
-export function UserLoginForm() {
+interface UserLoginFormProps {
+  onSuccess?: () => void;
+  onSwitchToSignup?: () => void;
+}
+
+export function UserLoginForm({ onSuccess, onSwitchToSignup }: UserLoginFormProps = {}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
+  const embedded = Boolean(onSuccess);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<{ username?: string; password?: string }>({});
@@ -45,7 +51,11 @@ export function UserLoginForm() {
     setSubmitting(true);
     try {
       await login(parsed.data);
-      router.replace(getSafeRedirectPath(searchParams.get("next")));
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.replace(getSafeRedirectPath(searchParams.get("next")));
+      }
     } catch (mutationError) {
       setError(getLoginErrorMessage(mutationError));
     } finally {
@@ -56,11 +66,11 @@ export function UserLoginForm() {
   return (
     <form className="space-y-4" onSubmit={(event) => void handleSubmit(event)}>
       <div>
-        <label htmlFor="user-username" className="mb-1.5 block text-sm font-semibold">
+        <label htmlFor={embedded ? "join-user-username" : "user-username"} className="mb-1.5 block text-sm font-semibold">
           Username or email
         </label>
         <input
-          id="user-username"
+          id={embedded ? "join-user-username" : "user-username"}
           autoComplete="username"
           autoFocus
           value={username}
@@ -70,7 +80,7 @@ export function UserLoginForm() {
         {fieldErrors.username ? <p className="mt-1 text-xs text-red-400">{fieldErrors.username}</p> : null}
       </div>
       <PasswordField
-        id="user-password"
+        id={embedded ? "join-user-password" : "user-password"}
         value={password}
         onChange={setPassword}
         error={fieldErrors.password}
@@ -85,9 +95,15 @@ export function UserLoginForm() {
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         New here?{" "}
-        <Link href="/signup" className="font-semibold text-primary hover:text-primary/80">
-          Create an account
-        </Link>
+        {onSwitchToSignup ? (
+          <button type="button" className="font-semibold text-primary hover:text-primary/80" onClick={onSwitchToSignup}>
+            Create an account
+          </button>
+        ) : (
+          <Link href="/signup" className="font-semibold text-primary hover:text-primary/80">
+            Create an account
+          </Link>
+        )}
       </p>
     </form>
   );

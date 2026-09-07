@@ -108,7 +108,7 @@ export function Header() {
             ) : null}
           </Link>
           <Button asChild size="sm" className="h-9 bg-primary text-primary-foreground">
-            <Link href="/join-clash">Join Clash</Link>
+            <Link href={pathname === "/" ? "#join-clash" : "/join-clash"}>Join Clash</Link>
           </Button>
           {isAuthenticated ? (
             <div className="flex items-center gap-2">
@@ -185,7 +185,9 @@ export function Header() {
                   <p className="text-sm text-muted-foreground">Signed in as @{user?.username}</p>
                 ) : null}
                 <Button asChild className="w-full justify-center bg-primary text-primary-foreground">
-                  <Link href="/join-clash">Join Clash</Link>
+                  <Link href={pathname === "/" ? "#join-clash" : "/join-clash"} onClick={() => setMenuPath(null)}>
+                    Join Clash
+                  </Link>
                 </Button>
                 {isAuthenticated ? (
                   <Button className="w-full" variant="outline" onClick={handleLogout} disabled={signingOut}>

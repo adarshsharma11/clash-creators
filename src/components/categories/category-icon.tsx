@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import { LayoutGrid } from "lucide-react";
 import { resolveCategoryIcon } from "@/lib/brand-icons";
 
@@ -9,8 +10,10 @@ interface CategoryIconProps {
 }
 
 export function CategoryIcon({ name, slug, label, className }: CategoryIconProps) {
-  const Icon = resolveCategoryIcon(name, slug, label);
-  return <Icon className={className} aria-hidden="true" />;
+  return createElement(resolveCategoryIcon(name, slug, label), {
+    className,
+    "aria-hidden": true,
+  });
 }
 
 export function AllCategoriesIcon({ className }: { className?: string }) {

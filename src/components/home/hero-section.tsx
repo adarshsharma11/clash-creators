@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { JoinClashCard } from "@/components/clash/join-clash-card";
 import type { TodayStats } from "@/types/today-stats";
 import { TodayCounter } from "./today-counter";
 
@@ -64,17 +65,19 @@ export function HeroSection({ clashHref, todayStats }: HeroSectionProps) {
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          className="mt-10 flex w-full max-w-lg flex-col items-center justify-center gap-3 sm:flex-row"
+          transition={{ duration: 0.4, delay: 0.28 }}
+          className="mt-10 w-full max-w-md"
         >
-          <Button
-            size="lg"
-            className="h-12 w-full bg-primary px-8 text-base font-semibold text-primary-foreground sm:w-auto"
-            asChild
-          >
-            <Link href="/join-clash">Join Clash</Link>
-          </Button>
-          <Button size="lg" variant="outline" className="h-12 w-full px-8 text-base font-semibold sm:w-auto" asChild>
+          <JoinClashCard variant="hero" />
+        </motion.div>
+
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.34 }}
+          className="mt-5"
+        >
+          <Button size="lg" variant="outline" className="h-12 px-8 text-base font-semibold" asChild>
             <Link href={clashHref}>View Clash</Link>
           </Button>
         </motion.div>

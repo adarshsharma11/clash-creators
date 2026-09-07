@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { getClash, getClashLeaderboard, getClashes, getLiveClash } from "@/lib/api/clashes";
 import { queryKeys } from "@/lib/api/query-keys";
+import { mergeJoinableClashes } from "@/lib/join-clash-flow";
 import { retryUnlessNotFound } from "@/lib/query-retry";
 import type { ClashLeaderboardQuery, ClashListQuery } from "@/types/clash";
 
@@ -24,6 +25,23 @@ export function useLiveClash() {
     staleTime: LIVE_STALE_TIME,
     retry: retryUnlessNotFound,
   });
+}
+
+export function useAvailableClashes() {
+  const liveQuery = useLiveClash();
+  const upcomingQuery = useClashes({ status: "UPCOMING", page: 1, limit: 50 });
+
+  return {
+    liveClash: liveQuery.data ?? null,
+    clashes: mergeJoinableClashes(liveQuery.data, upcomingQuery.data?.items ?? []),
+    isPending: liveQuery.isPending || upcomingQuery.isPending,
+    isError: liveQuery.isError || upcomingQuery.isError,
+    isFetching: liveQuery.isFetching || upcomingQuery.isFetching,
+    error: liveQuery.error ?? upcomingQuery.error,
+    refetch: async () => {
+      await Promise.all([liveQuery.refetch(), upcomingQuery.refetch()]);
+    },
+  };
 }
 
 export function useClash(id: string, enabled = true) {

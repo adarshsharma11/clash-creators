@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { subscribeUnauthorized } from "@/lib/api/session-events";
 
 function isProtectedUserPath(pathname: string): boolean {
-  return pathname === "/join-clash" || pathname.startsWith("/support/");
+  return pathname.startsWith("/support/");
 }
 
 export function SessionGuard() {

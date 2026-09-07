@@ -7,6 +7,7 @@ import { BattleHero } from "@/components/clash/battle-hero";
 import { Leaderboard } from "@/components/home/leaderboard";
 import { ClashPageSkeleton } from "@/components/loading/clash-page-skeleton";
 import { Avatar } from "@/components/ui/avatar";
+import { JoinClashCard } from "@/components/clash/join-clash-card";
 import { ApiRetryButton, ApiStatusPanel } from "@/components/ui/api-status-panel";
 import { usePrefetchCreator } from "@/hooks/queries/use-creators";
 import { useClash, useClashLeaderboard, useLiveClash } from "@/hooks/queries/use-clashes";
@@ -108,6 +109,17 @@ export function ClashExperience({ clashId }: ClashExperienceProps) {
       </div>
 
       <BattleHero battle={battle} />
+
+      {clash.status === "UPCOMING" || clash.status === "LIVE" ? (
+        <div className="container mx-auto max-w-xl px-4 pb-10 sm:px-8">
+          <JoinClashCard
+            variant="compact"
+            clashId={clash.slug}
+            title="Want to enter the battle?"
+            description="Add your creator username and main platform to join this clash."
+          />
+        </div>
+      ) : null}
 
       <div className="container mx-auto max-w-5xl px-4 sm:px-8">
         {entries.length === 0 ? (
