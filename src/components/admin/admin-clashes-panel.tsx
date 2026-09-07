@@ -62,7 +62,7 @@ export function AdminClashesPanel() {
     { id: "clash", header: "Clash", cell: (row) => <span className="font-semibold">{row.title}</span> },
     { id: "status", header: "Status", cell: (row) => <ClashStatusBadge status={row.status} /> },
     { id: "creators", header: "Creators", cell: (row) => row._count?.participants ?? 0 },
-    { id: "start", header: "Start", cell: (row) => formatAdminDateTime(row.startsAt) },
+    { id: "start", header: "Start", cell: (row) => formatAdminDateTime(row.startsAt), hideOnMobile: true },
     { id: "end", header: "End", cell: (row) => formatAdminDateTime(row.endsAt) },
     { id: "category", header: "Category", cell: (row) => row.category?.name ?? "—" },
     {

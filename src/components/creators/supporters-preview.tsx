@@ -20,7 +20,7 @@ export function SupportersPreview({ supporters }: SupportersPreviewProps) {
 
       {supporters.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border/60 px-6 py-12 text-center text-sm text-muted-foreground">
-          No supporters yet.
+          No supporters yet. Be the first to support this creator.
         </p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

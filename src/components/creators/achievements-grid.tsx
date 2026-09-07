@@ -18,7 +18,7 @@ export function AchievementsGrid({ achievements }: AchievementsGridProps) {
 
       {achievements.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border/60 px-6 py-12 text-center text-sm text-muted-foreground">
-          No achievements yet.
+          No achievements yet. Wins and clash milestones will appear here.
         </p>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">

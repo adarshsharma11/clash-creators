@@ -46,7 +46,9 @@ export function WinnersExperience() {
     <main className="container mx-auto max-w-5xl flex-1 px-4 pb-16 pt-10 sm:px-8">
       <header className="mb-8 max-w-2xl">
         <h1 className="mb-3 text-4xl font-extrabold tracking-tight sm:text-5xl">Hall of Fame</h1>
-        <p className="text-lg text-muted-foreground">Completed clash champions from the backend winners API.</p>
+        <p className="text-lg text-muted-foreground">
+          Daily champions, winning points, and the clashes they won.
+        </p>
       </header>
 
       <div className="mb-8 flex flex-wrap gap-3">

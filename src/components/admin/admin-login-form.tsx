@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { Crown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PasswordField } from "@/components/ui/password-field";
 import { useAdminAuth } from "@/context/admin-auth-context";
 import { adminLoginSchema } from "@/lib/validations/auth";
-import { getApiErrorMessage } from "@/types/api";
+import { getLoginErrorMessage } from "@/types/api";
 
 export function AdminLoginForm() {
   const router = useRouter();
@@ -45,7 +46,7 @@ export function AdminLoginForm() {
       await login(parsed.data);
       router.replace("/admin");
     } catch (mutationError) {
-      setError(getApiErrorMessage(mutationError));
+      setError(getLoginErrorMessage(mutationError));
     } finally {
       setSubmitting(false);
     }
@@ -72,6 +73,7 @@ export function AdminLoginForm() {
             id="admin-email"
             type="email"
             autoComplete="username"
+            autoFocus
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
@@ -79,21 +81,12 @@ export function AdminLoginForm() {
           />
           {fieldErrors.email ? <p className="mt-1 text-xs text-red-400">{fieldErrors.email}</p> : null}
         </div>
-        <div>
-          <label htmlFor="admin-password" className="mb-1.5 block text-sm font-semibold">
-            Password
-          </label>
-          <input
-            id="admin-password"
-            type="password"
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="h-11 w-full rounded-xl border border-border/50 bg-background px-3 text-sm outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-ring"
-          />
-          {fieldErrors.password ? <p className="mt-1 text-xs text-red-400">{fieldErrors.password}</p> : null}
-        </div>
+        <PasswordField
+          id="admin-password"
+          value={password}
+          onChange={setPassword}
+          error={fieldErrors.password}
+        />
         {error ? (
           <p role="alert" className="text-sm text-red-400">
             {error}

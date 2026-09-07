@@ -90,7 +90,12 @@ export function FAQExperience({ items }: FAQExperienceProps) {
 
   return (
     <div className="space-y-6">
-      <FAQSearch value={query} onChange={handleQueryChange} />
+      <FAQSearch
+        value={query}
+        onChange={handleQueryChange}
+        resultCount={visibleItems.length}
+        totalCount={items.length}
+      />
       <FAQFilters value={category} onChange={handleCategoryChange} />
 
       {visibleItems.length > 0 ? (

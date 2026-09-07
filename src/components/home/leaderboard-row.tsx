@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import type { BattleEntry } from "@/types/battle";
 import { Avatar } from "@/components/ui/avatar";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { formatPoints, formatNumber } from "@/lib/formatters";
+import { cn } from "@/lib/utils";
 import { ChevronUp, ChevronDown, Minus, Flame } from "lucide-react";
 
 interface LeaderboardRowProps {
@@ -15,128 +16,133 @@ interface LeaderboardRowProps {
   nextEntry?: BattleEntry;
   maxPoints: number;
   index: number;
+  highlighted?: boolean;
 }
 
-export function LeaderboardRow({ entry, nextEntry, maxPoints, index }: LeaderboardRowProps) {
+export function LeaderboardRow({
+  entry,
+  nextEntry,
+  maxPoints,
+  index,
+  highlighted = false,
+}: LeaderboardRowProps) {
+  const reduceMotion = useReducedMotion();
   const rankChange = (entry.previousRank || entry.rank) - entry.rank;
   const distanceToNext = nextEntry ? nextEntry.supportPoints - entry.supportPoints : 0;
-  
   const isTopThree = entry.rank <= 3;
+  const movementLabel =
+    entry.previousRank === undefined
+      ? "New"
+      : rankChange > 0
+        ? `Up ${Math.abs(rankChange)}`
+        : rankChange < 0
+          ? `Down ${Math.abs(rankChange)}`
+          : "Unchanged";
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={reduceMotion ? false : { opacity: 0, y: 12 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.5) }}
+      transition={{ duration: reduceMotion ? 0 : 0.35, delay: reduceMotion ? 0 : Math.min(index * 0.04, 0.4) }}
       className="group relative"
     >
-      <div className={`relative flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-2xl border transition-all duration-300 hover:shadow-lg ${
-        isTopThree 
-          ? 'bg-card/80 border-border/60 hover:border-primary/50' 
-          : 'bg-card/40 border-border/30 hover:bg-card hover:border-border/60'
-      }`}>
-        
-        {/* Rank & Movement */}
-        <div className="flex items-center gap-3 min-w-[60px]">
-          <div className={`font-mono text-xl md:text-2xl font-black ${
-            entry.rank === 1 ? 'text-amber-400' :
-            entry.rank === 2 ? 'text-slate-300' :
-            entry.rank === 3 ? 'text-amber-700' :
-            'text-muted-foreground'
-          }`}>
+      <div
+        className={cn(
+          "relative flex flex-col gap-3 rounded-2xl border p-3 sm:flex-row sm:items-center sm:gap-4 sm:p-4",
+          isTopThree ? "border-border/60 bg-card/80" : "border-border/30 bg-card/40",
+          highlighted && "border-primary/50 bg-primary/8",
+          "hover:border-primary/40"
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className={cn(
+              "w-10 shrink-0 font-mono text-xl font-black tabular-nums sm:w-12 sm:text-2xl",
+              entry.rank === 1 && "text-amber-400",
+              entry.rank === 2 && "text-slate-300",
+              entry.rank === 3 && "text-amber-700",
+              entry.rank > 3 && "text-muted-foreground"
+            )}
+          >
             #{entry.rank}
           </div>
-          <div className="flex flex-col items-center">
+          <div className="flex w-6 flex-col items-center" aria-label={movementLabel}>
             {entry.previousRank === undefined ? null : rankChange > 0 ? (
-              <ChevronUp className="h-4 w-4 text-green-500" />
+              <ChevronUp className="h-4 w-4 text-green-500" aria-hidden="true" />
             ) : rankChange < 0 ? (
-              <ChevronDown className="h-4 w-4 text-red-500" />
+              <ChevronDown className="h-4 w-4 text-red-500" aria-hidden="true" />
             ) : (
-              <Minus className="h-4 w-4 text-muted-foreground/50" />
+              <Minus className="h-4 w-4 text-muted-foreground/50" aria-hidden="true" />
             )}
-            {rankChange !== 0 && (
+            {rankChange !== 0 ? (
               <span className="text-[10px] font-bold text-muted-foreground">{Math.abs(rankChange)}</span>
-            )}
+            ) : null}
           </div>
-        </div>
 
-        {/* Creator Info */}
-        <div className="flex items-center gap-3 flex-1 min-w-0">
-          <Link href={`/creators/${entry.creator.username}`} className="flex items-center gap-3 w-full group/link">
-            <Avatar 
-              src={entry.creator.avatarUrl ?? undefined}
+          <Link href={`/creators/${entry.creator.username}`} className="flex min-w-0 flex-1 items-center gap-3">
+            <Avatar
+              src={entry.creator.avatarUrl}
               alt={entry.creator.displayName}
               fallback={entry.creator.displayName}
-              className={`transition-transform duration-300 group-hover/link:scale-105 ${
-                isTopThree ? 'h-12 w-12 sm:h-14 sm:w-14' : 'h-10 w-10 sm:h-12 sm:w-12'
-              }`}
+              className={cn("h-11 w-11 shrink-0", isTopThree && "sm:h-12 sm:w-12")}
             />
-            <div className="flex flex-col min-w-0">
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-bold truncate text-base sm:text-lg text-foreground group-hover/link:text-primary transition-colors">
-                  {entry.creator.displayName}
-                </span>
-                {entry.creator.verified && (
-                  <Badge variant="secondary" className="h-4 w-4 p-0 flex items-center justify-center rounded-full bg-blue-500 text-white">
-                    ✓
+                <span className="truncate font-bold">{entry.creator.displayName}</span>
+                {entry.creator.verified ? (
+                  <Badge
+                    variant="secondary"
+                    className="flex h-4 w-4 items-center justify-center rounded-full bg-blue-500 p-0 text-white"
+                  >
+                    <span className="sr-only">Verified</span>✓
                   </Badge>
-                )}
-              </div>
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground truncate">
-                <span>@{entry.creator.username}</span>
-                {entry.creator.category ? (
-                  <>
-                    <span className="hidden sm:inline">&bull;</span>
-                    <span className="hidden sm:inline">{entry.creator.category}</span>
-                  </>
                 ) : null}
-                {typeof entry.creator.followers === "number" ? (
-                  <>
-                    <span className="hidden sm:inline">&bull;</span>
-                    <span className="hidden sm:inline">{formatNumber(entry.creator.followers)} fans</span>
-                  </>
+                {highlighted ? (
+                  <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                    You
+                  </span>
                 ) : null}
               </div>
+              <p className="truncate text-xs text-muted-foreground sm:text-sm">@{entry.creator.username}</p>
             </div>
           </Link>
         </div>
 
-        {/* Stats & Support */}
-        <div className="flex flex-col sm:items-end w-full sm:w-auto gap-3 sm:gap-1 mt-2 sm:mt-0">
-          <div className="flex sm:flex-col items-center sm:items-end justify-between w-full">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-lg sm:text-xl font-bold tracking-tighter">
-                {formatPoints(entry.supportPoints)}
-              </span>
-              <span className="text-xs text-muted-foreground uppercase font-semibold">Support</span>
+        <div className="flex items-center justify-between gap-3 sm:ml-auto sm:w-auto sm:min-w-[220px] sm:flex-col sm:items-end">
+          <div className="min-w-0">
+            <div className="flex items-baseline gap-2">
+              <span className="font-mono text-lg font-bold tabular-nums">{formatPoints(entry.supportPoints)}</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Points</span>
             </div>
-            
             {entry.rank === 1 ? (
-              <div className="text-xs font-semibold text-amber-500 uppercase tracking-wider">
-                Current Leader
-              </div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-amber-500">Current #1</p>
             ) : distanceToNext > 0 ? (
-              <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
-                <Flame className="h-3 w-3 text-orange-500" />
-                <span>{formatPoints(distanceToNext)} to #{entry.rank - 1}</span>
-              </div>
+              <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Flame className="h-3 w-3 text-orange-500" aria-hidden="true" />
+                {formatPoints(distanceToNext)} to #{entry.rank - 1}
+              </p>
+            ) : null}
+            {typeof entry.creator.followers === "number" ? (
+              <p className="hidden text-xs text-muted-foreground sm:block">{formatNumber(entry.creator.followers)} fans</p>
             ) : null}
           </div>
-
-          <div className="flex items-center gap-3 w-full sm:w-[200px] mt-1 sm:mt-2">
-            <Progress 
-              value={entry.supportPoints} 
-              max={maxPoints} 
-              className="flex-1 h-2 bg-secondary/50"
+          <div className="flex w-[140px] items-center gap-2 sm:w-[200px]">
+            <Progress
+              value={entry.supportPoints}
+              max={maxPoints}
+              className="h-2 flex-1 bg-secondary/50"
               indicatorClassName={
-                entry.rank === 1 ? 'bg-amber-400' :
-                entry.rank === 2 ? 'bg-slate-300' :
-                entry.rank === 3 ? 'bg-amber-700' :
-                'bg-primary'
+                entry.rank === 1
+                  ? "bg-amber-400"
+                  : entry.rank === 2
+                    ? "bg-slate-300"
+                    : entry.rank === 3
+                      ? "bg-amber-700"
+                      : "bg-primary"
               }
             />
-            <Button asChild size="sm" className="shrink-0">
+            <Button asChild size="sm" className="h-9 shrink-0 bg-primary text-primary-foreground">
               <Link href={`/support/${entry.creator.username}`}>Support</Link>
             </Button>
           </div>

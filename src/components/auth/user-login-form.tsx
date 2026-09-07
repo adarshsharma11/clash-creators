@@ -4,10 +4,11 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { PasswordField } from "@/components/ui/password-field";
 import { useAuth } from "@/context/auth-context";
 import { getSafeRedirectPath } from "@/lib/safe-redirect";
 import { userLoginSchema } from "@/lib/validations/auth";
-import { getApiErrorMessage } from "@/types/api";
+import { getLoginErrorMessage } from "@/types/api";
 
 export function UserLoginForm() {
   const router = useRouter();
@@ -46,7 +47,7 @@ export function UserLoginForm() {
       await login(parsed.data);
       router.replace(getSafeRedirectPath(searchParams.get("next")));
     } catch (mutationError) {
-      setError(getApiErrorMessage(mutationError));
+      setError(getLoginErrorMessage(mutationError));
     } finally {
       setSubmitting(false);
     }
@@ -61,32 +62,25 @@ export function UserLoginForm() {
         <input
           id="user-username"
           autoComplete="username"
+          autoFocus
           value={username}
           onChange={(event) => setUsername(event.target.value)}
           className="h-11 w-full rounded-xl border border-border/50 bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
         />
         {fieldErrors.username ? <p className="mt-1 text-xs text-red-400">{fieldErrors.username}</p> : null}
       </div>
-      <div>
-        <label htmlFor="user-password" className="mb-1.5 block text-sm font-semibold">
-          Password
-        </label>
-        <input
-          id="user-password"
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className="h-11 w-full rounded-xl border border-border/50 bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        />
-        {fieldErrors.password ? <p className="mt-1 text-xs text-red-400">{fieldErrors.password}</p> : null}
-      </div>
+      <PasswordField
+        id="user-password"
+        value={password}
+        onChange={setPassword}
+        error={fieldErrors.password}
+      />
       {error ? (
         <p role="alert" className="text-sm text-red-400">
           {error}
         </p>
       ) : null}
-      <Button type="submit" className="h-11 w-full font-bold" disabled={submitting}>
+      <Button type="submit" className="h-11 w-full font-bold" disabled={submitting} aria-busy={submitting}>
         {submitting ? "Signing in..." : "Sign In"}
       </Button>
       <p className="text-center text-sm text-muted-foreground">

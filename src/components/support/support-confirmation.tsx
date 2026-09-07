@@ -15,6 +15,8 @@ interface SupportConfirmationProps {
   phase: PaymentPhase;
   error?: string | null;
   confirmLabel?: string;
+  clashTitle?: string;
+  displayName?: string;
   onConfirm: () => void;
   onBack: () => void;
 }
@@ -25,7 +27,9 @@ export function SupportConfirmation({
   amount,
   phase,
   error = null,
-  confirmLabel = "Confirm Support",
+  confirmLabel = "Continue to payment",
+  clashTitle,
+  displayName,
   onConfirm,
   onBack,
 }: SupportConfirmationProps) {
@@ -90,15 +94,24 @@ export function SupportConfirmation({
         className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl border border-border bg-card p-6 shadow-2xl sm:p-8"
       >
         <h2 id="confirm-support-title" className="mb-3 text-2xl font-extrabold tracking-tight">
-          Confirm Support
+          Review support
         </h2>
-        <p className="mb-6 text-muted-foreground">
-          You&apos;re about to give:
-        </p>
-        <p className="mb-2 font-mono text-4xl font-black text-primary">
-          +{formatPoints(amount)}
-        </p>
-        <p className="mb-8 text-lg font-semibold">Support Points to @{username}</p>
+        <dl className="mb-6 space-y-3 rounded-2xl border border-border/50 bg-background/40 p-4 text-sm">
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Creator</dt>
+            <dd className="font-semibold">{displayName ?? `@${username}`}</dd>
+          </div>
+          {clashTitle ? (
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">Clash</dt>
+              <dd className="text-right font-semibold">{clashTitle}</dd>
+            </div>
+          ) : null}
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Support points</dt>
+            <dd className="font-mono font-bold text-primary">+{formatPoints(amount)}</dd>
+          </div>
+        </dl>
 
         <div id="confirm-support-status" role="status" aria-live="polite" aria-atomic="true">
           <AnimatePresence mode="wait">

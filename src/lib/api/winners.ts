@@ -26,6 +26,9 @@ export function toHallOfFameWinner(winner: WinnerListItem): HallOfFameWinner {
     },
     supportPoints: winner.points,
     title: winner.clash.category?.name ? `${winner.clash.category.name} Champion` : winner.clash.title,
+    clashTitle: winner.clash.title,
+    clashSlug: winner.clash.slug,
+    categoryName: winner.clash.category?.name,
   };
 }
 

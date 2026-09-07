@@ -42,9 +42,14 @@ export function FinalCTA({ clashHref }: FinalCTAProps) {
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Button size="lg" className="h-14 px-10 text-lg font-bold bg-background text-foreground hover:bg-background/90 shadow-xl" asChild>
-            <Link href={clashHref}>Explore Today&apos;s Clash</Link>
-          </Button>
+          <div className="flex w-full max-w-md flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Button size="lg" className="h-12 w-full bg-background px-8 text-base font-bold text-foreground hover:bg-background/90 sm:w-auto" asChild>
+              <Link href="/join-clash">Join Clash</Link>
+            </Button>
+            <Button size="lg" variant="outline" className="h-12 w-full border-primary-foreground/30 bg-transparent px-8 text-base font-bold text-primary-foreground hover:bg-primary-foreground/10 sm:w-auto" asChild>
+              <Link href={clashHref}>View Clash</Link>
+            </Button>
+          </div>
         </motion.div>
       </div>
     </section>

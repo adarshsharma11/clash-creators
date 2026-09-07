@@ -38,7 +38,7 @@ export function AdminPaymentsPanel() {
   }, [pagination?.total, rows]);
 
   const columns: AdminTableColumn<AdminPayment>[] = [
-    { id: "id", header: "Payment ID", cell: (row) => <span className="font-mono text-xs">{row.id}</span> },
+    { id: "id", header: "Payment ID", cell: (row) => <span className="font-mono text-xs">{row.id}</span>, hideOnMobile: true },
     {
       id: "creator",
       header: "Creator",
@@ -50,7 +50,7 @@ export function AdminPaymentsPanel() {
       cell: (row) => `${formatPoints(amountValue(row.amount))} ${row.currency}`,
     },
     { id: "status", header: "Status", cell: (row) => <PaymentStatusBadge status={row.status} /> },
-    { id: "provider", header: "Provider", cell: (row) => row.provider },
+    { id: "provider", header: "Provider", cell: (row) => row.provider, hideOnMobile: true },
     { id: "created", header: "Created", cell: (row) => formatAdminDateTime(row.createdAt) },
   ];
 

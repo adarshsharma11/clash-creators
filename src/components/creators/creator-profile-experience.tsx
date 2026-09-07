@@ -1,6 +1,6 @@
 "use client";
 
-import { notFound } from "next/navigation";
+import Link from "next/link";
 import { AchievementsGrid } from "@/components/creators/achievements-grid";
 import { BattleHistoryList } from "@/components/creators/battle-history-list";
 import { CreatorHero } from "@/components/creators/creator-hero";
@@ -13,6 +13,7 @@ import { ReportCreatorForm } from "@/components/creators/report-creator-form";
 import { useAuth } from "@/context/auth-context";
 import { CreatorPageSkeleton } from "@/components/loading/creator-page-skeleton";
 import { ApiRetryButton, ApiStatusPanel } from "@/components/ui/api-status-panel";
+import { Button } from "@/components/ui/button";
 import { useClashLeaderboard } from "@/hooks/queries/use-clashes";
 import { useCreator, useCreatorClashes, useCreatorSupporters } from "@/hooks/queries/use-creators";
 import { toCreatorFromDetail } from "@/lib/clash-view";
@@ -40,7 +41,19 @@ export function CreatorProfileExperience({ username }: CreatorProfileExperienceP
 
   if (creatorQuery.isError) {
     if (creatorQuery.error instanceof ApiError && creatorQuery.error.status === 404) {
-      notFound();
+      return (
+        <main className="container mx-auto max-w-5xl flex-1 px-4 py-16 sm:px-8">
+          <ApiStatusPanel
+            title="Creator not found"
+            message="This creator is unavailable or the username is incorrect."
+            action={
+              <Button asChild className="font-bold">
+                <Link href="/creators">Browse creators</Link>
+              </Button>
+            }
+          />
+        </main>
+      );
     }
 
     return (
@@ -95,11 +108,14 @@ export function CreatorProfileExperience({ username }: CreatorProfileExperienceP
   const canRetrySecondary = clashesQuery.isError || supportersQuery.isError || leaderboardQuery.isError;
 
   return (
-    <main className="flex flex-1 flex-col">
+    <main className="flex flex-1 flex-col pb-20 md:pb-0">
       <CreatorHero
         creator={profile}
         totalWins={creator.wins}
         socialAccounts={creator.socialAccounts}
+        rank={currentEntry?.rank ?? null}
+        supportPoints={currentEntry?.points ?? creator.supportTotals.points}
+        clashTitle={creator.currentClash?.title}
       />
 
       <div className="container mx-auto max-w-5xl px-4 sm:px-8">

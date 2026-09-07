@@ -29,6 +29,11 @@
 }
 
 :root {
+  --page-max: 72rem;
+  --page-pad: 1rem;
+  --section-y: 3rem;
+  --control-h: 2.75rem;
+  --card-radius: 1rem;
   /* Default to dark mode colors */
   --background: #0a0a0b;
   --foreground: #fafafa;
@@ -60,6 +65,17 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+}
+
+@media (min-width: 640px) {
+  :root {
+    --page-pad: 2rem;
+    --section-y: 5rem;
   }
 }
 

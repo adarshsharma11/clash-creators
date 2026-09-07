@@ -19,7 +19,7 @@ export function BattleHistoryList({ history }: BattleHistoryListProps) {
 
       {history.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-border/60 px-6 py-12 text-center text-sm text-muted-foreground">
-          No clashes yet.
+          No clashes yet. Join a clash to start building history.
         </p>
       ) : (
         <div className="space-y-4">

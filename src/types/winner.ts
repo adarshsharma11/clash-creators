@@ -8,6 +8,9 @@ export type HallOfFameWinner = {
   };
   supportPoints: number;
   title: string;
+  clashTitle?: string;
+  clashSlug?: string;
+  categoryName?: string;
 };
 
 export type WinnerListQuery = {

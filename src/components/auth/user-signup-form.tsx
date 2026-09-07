@@ -4,10 +4,11 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { PasswordField } from "@/components/ui/password-field";
 import { useAuth } from "@/context/auth-context";
 import { getSafeRedirectPath } from "@/lib/safe-redirect";
 import { userSignupSchema } from "@/lib/validations/auth";
-import { getApiErrorMessage, getApiValidationErrors } from "@/types/api";
+import { getApiValidationErrors, getLoginErrorMessage } from "@/types/api";
 
 export function UserSignupForm() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export function UserSignupForm() {
       for (const issue of parsed.error.issues) {
         const key = String(issue.path[0] ?? "");
         if (key && !nextErrors[key]) {
-          nextErrors[key] = issue.message;
+          nextErrors[key] = issue.message === "Enter a valid email" ? "Please enter a valid email address." : issue.message;
         }
       }
       setFieldErrors(nextErrors);
@@ -49,7 +50,7 @@ export function UserSignupForm() {
       router.replace(getSafeRedirectPath(searchParams.get("next")));
     } catch (mutationError) {
       const validation = getApiValidationErrors(mutationError);
-      setError(validation[0] ?? getApiErrorMessage(mutationError));
+      setError(validation[0] ?? getLoginErrorMessage(mutationError));
     } finally {
       setSubmitting(false);
     }
@@ -64,7 +65,14 @@ export function UserSignupForm() {
         <label htmlFor="signup-full-name" className="mb-1.5 block text-sm font-semibold">
           Full name
         </label>
-        <input id="signup-full-name" autoComplete="name" value={fullName} onChange={(event) => setFullName(event.target.value)} className={inputClass} />
+        <input
+          id="signup-full-name"
+          autoComplete="name"
+          autoFocus
+          value={fullName}
+          onChange={(event) => setFullName(event.target.value)}
+          className={inputClass}
+        />
         {fieldErrors.fullName ? <p className="mt-1 text-xs text-red-400">{fieldErrors.fullName}</p> : null}
       </div>
       <div>
@@ -81,26 +89,20 @@ export function UserSignupForm() {
         <input id="signup-email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} className={inputClass} />
         {fieldErrors.email ? <p className="mt-1 text-xs text-red-400">{fieldErrors.email}</p> : null}
       </div>
-      <div>
-        <label htmlFor="signup-password" className="mb-1.5 block text-sm font-semibold">
-          Password
-        </label>
-        <input
-          id="signup-password"
-          type="password"
-          autoComplete="new-password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          className={inputClass}
-        />
-        {fieldErrors.password ? <p className="mt-1 text-xs text-red-400">{fieldErrors.password}</p> : null}
-      </div>
+      <PasswordField
+        id="signup-password"
+        label="Password"
+        autoComplete="new-password"
+        value={password}
+        onChange={setPassword}
+        error={fieldErrors.password}
+      />
       {error ? (
         <p role="alert" className="text-sm text-red-400">
           {error}
         </p>
       ) : null}
-      <Button type="submit" className="h-11 w-full font-bold" disabled={submitting}>
+      <Button type="submit" className="h-11 w-full font-bold" disabled={submitting} aria-busy={submitting}>
         {submitting ? "Creating account..." : "Create account"}
       </Button>
       <p className="text-center text-sm text-muted-foreground">

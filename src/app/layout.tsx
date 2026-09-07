@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AuthProvider } from "@/context/auth-context";
+import { ToastProvider } from "@/components/ui/toast";
 import { QueryProvider } from "@/providers/query-provider";
 import "./globals.css";
 
@@ -20,7 +21,9 @@ export default function RootLayout({
     <html lang="en" className="dark scroll-smooth">
       <body className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
         <QueryProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

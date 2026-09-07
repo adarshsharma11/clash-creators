@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { LegalToc } from "@/components/legal/legal-toc";
 import { legalContact } from "@/config/legal";
 import { socialProfiles } from "@/config/social";
 import type { LegalSection } from "@/types/legal";
@@ -22,7 +23,10 @@ export function LegalDocument({
 }: LegalDocumentProps) {
   return (
     <main className="flex flex-1 flex-col">
-      <article className="container mx-auto max-w-3xl px-4 py-12 sm:px-8 sm:py-16">
+      <article className="container mx-auto max-w-5xl px-4 py-12 sm:px-8 sm:py-16">
+        <div className="lg:flex lg:items-start lg:gap-12">
+          <LegalToc sections={sections} />
+          <div className="min-w-0 flex-1 lg:max-w-3xl">
         <header className="mb-12 border-b border-border/40 pb-10">
           <p className="mb-3 text-sm font-bold uppercase tracking-[0.28em] text-primary">
             Legal
@@ -90,6 +94,8 @@ export function LegalDocument({
               </div>
             </section>
           ))}
+        </div>
+          </div>
         </div>
       </article>
     </main>

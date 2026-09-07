@@ -16,7 +16,7 @@ export function FAQEmpty({ onClear }: FAQEmptyProps) {
       animate={{ opacity: 1, scale: 1 }}
       className="rounded-2xl border border-dashed border-border/60 px-6 py-16 text-center"
     >
-      <h2 className="mb-2 text-xl font-bold tracking-tight">No questions found</h2>
+      <h2 className="mb-2 text-xl font-bold tracking-tight">No results found</h2>
       <p className="mb-6 text-sm text-muted-foreground">
         Try a different search term or browse all questions.
       </p>

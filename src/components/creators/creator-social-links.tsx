@@ -93,15 +93,19 @@ export function CreatorSocialLinks({ accounts }: CreatorSocialLinksProps) {
               <a
                 href={href}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 title={label}
                 className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/60 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
               >
                 {content}
               </a>
             ) : (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-card/60 px-3 py-1.5 text-xs font-semibold text-muted-foreground">
+              <span
+                className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border/50 bg-muted/30 px-3 py-1.5 text-xs font-semibold text-muted-foreground/70"
+                title="Account unavailable"
+              >
                 {content}
+                <span className="sr-only">unavailable</span>
               </span>
             )}
           </li>

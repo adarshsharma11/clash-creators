@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import type { Creator, CreatorSocialAccount } from "@/types/creator";
 import { Avatar } from "@/components/ui/avatar";
@@ -8,98 +8,112 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShareButton } from "@/components/ui/share-button";
 import { CreatorSocialLinks } from "@/components/creators/creator-social-links";
-import { formatNumber } from "@/lib/formatters";
+import { formatNumber, formatPoints } from "@/lib/formatters";
 
 interface CreatorHeroProps {
   creator: Creator;
   totalWins: number;
   socialAccounts?: CreatorSocialAccount[];
+  rank?: number | null;
+  supportPoints?: number;
+  clashTitle?: string | null;
 }
 
-export function CreatorHero({ creator, totalWins, socialAccounts = [] }: CreatorHeroProps) {
+export function CreatorHero({
+  creator,
+  totalWins,
+  socialAccounts = [],
+  rank = null,
+  supportPoints,
+  clashTitle,
+}: CreatorHeroProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
-    <div className="relative pt-12 pb-20 overflow-hidden border-b border-border/40">
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-primary/5 via-background to-background"></div>
-      
+    <div className="relative overflow-hidden border-b border-border/40 pb-20 pt-12">
       <div className="container relative z-10 mx-auto px-4 sm:px-8">
-        <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
-          
+        <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={reduceMotion ? false : { scale: 0.96, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, type: "spring" }}
+            transition={{ duration: 0.35 }}
             className="mb-6"
           >
-            <Avatar 
-              src={creator.avatarUrl ?? undefined}
+            <Avatar
+              src={creator.avatarUrl}
               alt={creator.displayName}
               fallback={creator.displayName}
-              className="h-32 w-32 md:h-40 md:w-40 border-4 border-background shadow-xl ring-2 ring-primary/20"
+              className="h-32 w-32 border-4 border-background shadow-xl ring-2 ring-primary/20 md:h-40 md:w-40"
             />
           </motion.div>
-          
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            <div className="text-sm font-bold tracking-widest text-muted-foreground uppercase mb-2">
-              @{creator.username}
-            </div>
-            
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight flex items-center justify-center gap-3 mb-4">
-              {creator.displayName}
-              {creator.verified && (
-                <Badge variant="secondary" className="h-6 w-6 p-0 flex items-center justify-center rounded-full bg-blue-500 text-white text-sm">
-                  ✓
-                </Badge>
-              )}
-            </h1>
-            
-            <div className="flex flex-wrap items-center justify-center gap-3 text-sm md:text-base text-muted-foreground mb-6">
-              {creator.category ? (
-                <Badge variant="outline" className="text-sm py-1 font-medium">{creator.category} Creator</Badge>
-              ) : null}
-              {creator.country ? (
-                <>
-                  {creator.category ? <span>&bull;</span> : null}
-                  <span className="font-medium">{creator.country}</span>
-                </>
-              ) : null}
-              {typeof creator.followers === "number" ? (
-                <>
-                  {creator.category || creator.country ? <span>&bull;</span> : null}
-                  <span className="font-medium">{formatNumber(creator.followers)} Fans</span>
-                </>
-              ) : null}
-            </div>
-            
-            {totalWins > 0 && (
-              <div className="inline-flex items-center gap-2 bg-amber-500/10 text-amber-500 border border-amber-500/20 px-4 py-2 rounded-full font-bold text-sm md:text-base mb-8">
-                🏆 {totalWins}x Clash Champion
-              </div>
-            )}
 
-            {socialAccounts.length > 0 ? (
-              <div className="mb-8">
-                <CreatorSocialLinks accounts={socialAccounts} />
-              </div>
+          <div className="mb-2 text-sm font-bold uppercase tracking-widest text-muted-foreground">
+            @{creator.username}
+          </div>
+
+          <h1 className="mb-4 flex items-center justify-center gap-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
+            {creator.displayName}
+            {creator.verified ? (
+              <Badge
+                variant="secondary"
+                className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 p-0 text-sm text-white"
+              >
+                <span className="sr-only">Verified</span>✓
+              </Badge>
             ) : null}
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="w-full sm:w-auto h-14 px-8 text-base font-bold">
-                <Link href={`/support/${creator.username}`}>Support Creator</Link>
-              </Button>
-              <ShareButton 
-                title={`Support ${creator.displayName} on ClashCreators`} 
-                text={`Check out ${creator.displayName}'s competitive profile!`}
-                size="lg"
-                className="w-full sm:w-auto h-14"
-              />
+          </h1>
+
+          <div className="mb-6 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
+            {creator.category ? (
+              <Badge variant="outline" className="py-1 text-sm font-medium">
+                {creator.category} Creator
+              </Badge>
+            ) : null}
+            {typeof creator.followers === "number" ? (
+              <span className="font-medium">{formatNumber(creator.followers)} fans</span>
+            ) : null}
+          </div>
+
+          {rank || supportPoints !== undefined || clashTitle ? (
+            <div className="mb-6 flex flex-wrap items-center justify-center gap-4 rounded-2xl border border-border/50 bg-card/40 px-5 py-3 text-sm">
+              {rank ? <span className="font-black text-primary">#{rank}</span> : null}
+              {supportPoints !== undefined ? (
+                <span className="font-mono font-bold tabular-nums">{formatPoints(supportPoints)} pts</span>
+              ) : null}
+              {clashTitle ? <span className="text-muted-foreground">{clashTitle}</span> : null}
             </div>
-          </motion.div>
-          
+          ) : null}
+
+          {totalWins > 0 ? (
+            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-4 py-2 text-sm font-bold text-amber-500">
+              {totalWins}x Clash Champion
+            </div>
+          ) : null}
+
+          {socialAccounts.length > 0 ? (
+            <div className="mb-8">
+              <CreatorSocialLinks accounts={socialAccounts} />
+            </div>
+          ) : null}
+
+          <div className="hidden flex-col items-center justify-center gap-4 sm:flex-row md:flex">
+            <Button asChild size="lg" className="h-12 bg-primary px-8 text-base font-bold text-primary-foreground">
+              <Link href={`/support/${creator.username}`}>Support Creator</Link>
+            </Button>
+            <ShareButton
+              title={`Support ${creator.displayName} on ClashCreators`}
+              text={`Check out ${creator.displayName}'s competitive profile!`}
+              size="lg"
+              className="h-12"
+            />
+          </div>
         </div>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/50 bg-background/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden">
+        <Button asChild className="h-12 w-full bg-primary font-bold text-primary-foreground">
+          <Link href={`/support/${creator.username}`}>Support Creator</Link>
+        </Button>
       </div>
     </div>
   );

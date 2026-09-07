@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { BattleEntry } from "@/types/battle";
+import { useAuth } from "@/context/auth-context";
 import { LeaderboardRow } from "./leaderboard-row";
 import { TopThree } from "./top-three";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ interface LeaderboardProps {
 }
 
 export function Leaderboard({ initialEntries }: LeaderboardProps) {
+  const { user, creatorProfile } = useAuth();
   const [visibleCount, setVisibleCount] = useState(10);
   const entries = initialEntries;
 
@@ -32,6 +34,10 @@ export function Leaderboard({ initialEntries }: LeaderboardProps) {
               nextEntry={nextEntry}
               maxPoints={maxPoints}
               index={index}
+              highlighted={
+                entry.creator.username === user?.username ||
+                entry.creator.id === creatorProfile?.id
+              }
             />
           );
         })}

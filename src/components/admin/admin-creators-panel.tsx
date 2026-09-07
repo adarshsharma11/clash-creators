@@ -13,6 +13,7 @@ import { AdminSearch } from "@/components/admin/admin-search";
 import { CreatorStatusBadge } from "@/components/admin/admin-status-badges";
 import { CreatorsSkeleton } from "@/components/admin/creators-skeleton";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/toast";
 import { useUpdateCreatorStatus } from "@/hooks/mutations/use-admin-creator-status";
 import { useAdminCreators } from "@/hooks/queries/use-admin-creators";
 import { formatAdminDate } from "@/lib/admin-format";
@@ -28,6 +29,7 @@ export function AdminCreatorsPanel() {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const updateStatus = useUpdateCreatorStatus();
+  const { notify } = useToast();
 
   const query = useAdminCreators({
     page,
@@ -49,7 +51,7 @@ export function AdminCreatorsPanel() {
         </div>
       ),
     },
-    { id: "username", header: "Username", cell: (row) => `@${row.user.username}` },
+    { id: "username", header: "Username", cell: (row) => `@${row.user.username}`, hideOnMobile: true },
     { id: "category", header: "Category", cell: (row) => row.category?.name ?? "—" },
     { id: "status", header: "Status", cell: (row) => <CreatorStatusBadge status={row.status} /> },
     { id: "joined", header: "Joined", cell: (row) => formatAdminDate(row.createdAt) },
@@ -143,10 +145,20 @@ export function AdminCreatorsPanel() {
                 setFeedback(
                   nextStatus === "SUSPENDED" ? "Creator suspended." : "Creator restored."
                 );
+                notify({
+                  tone: "success",
+                  title: "Admin update saved",
+                  message: nextStatus === "SUSPENDED" ? "Creator suspended." : "Creator restored.",
+                });
                 setPending(null);
               },
               onError: (error) => {
                 setActionError(getApiErrorMessage(error));
+                notify({
+                  tone: "error",
+                  title: "Update failed",
+                  message: getApiErrorMessage(error),
+                });
               },
             }
           );

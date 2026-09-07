@@ -36,6 +36,7 @@ import { SupportHero } from "./support-hero";
 import { SupportSuccess } from "./support-success";
 import { SupportSummary } from "./support-summary";
 import { SupportTrust } from "./support-trust";
+import { useToast } from "@/components/ui/toast";
 
 type SupportStep = "select" | "confirm" | "success";
 type AmountSource = "preset" | "custom";
@@ -50,6 +51,7 @@ export function SupportExperience({ creator, battle, entry }: SupportExperienceP
   const router = useRouter();
   const queryClient = useQueryClient();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { notify } = useToast();
   const reduceMotion = useReducedMotion();
   const createSupportMutation = useCreateSupport();
   const verifyPaymentMutation = useVerifyRazorpayPayment();
@@ -138,6 +140,11 @@ export function SupportExperience({ creator, battle, entry }: SupportExperienceP
 
     setPhase("confirmed");
     setStep("success");
+    notify({
+      tone: "success",
+      title: "Support confirmed",
+      message: `You supported @${creator.username}.`,
+    });
   };
 
   const handleConfirm = async () => {
@@ -366,7 +373,9 @@ export function SupportExperience({ creator, battle, entry }: SupportExperienceP
         amount={intent?.amount ?? selectedAmount ?? 0}
         phase={phase}
         error={paymentError}
-        confirmLabel={isAuthenticated ? "Confirm Support" : "Sign in to support"}
+        confirmLabel={isAuthenticated ? "Continue to payment" : "Sign in to support"}
+        clashTitle={battle?.title}
+        displayName={creator.displayName}
         onConfirm={() => {
           void handleConfirm();
         }}

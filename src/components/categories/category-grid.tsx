@@ -29,6 +29,9 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
                 <p className="mt-1 text-sm text-muted-foreground">
                   {category.description ?? "See who leads this category."}
                 </p>
+                <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-primary">
+                  View ranking
+                </p>
               </div>
             </Link>
           </article>

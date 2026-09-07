@@ -5,7 +5,9 @@ import { Avatar } from "@/components/ui/avatar";
 import type { ClashListItem } from "@/types/clash";
 import type { Category } from "@/types/category";
 import type { JoinClashDraft } from "@/types/join-clash";
+import { formatDateTime } from "@/lib/formatters";
 import { normalizeJoinUsername } from "@/lib/join-clash";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 interface ClashPreviewStepProps {
   draft: JoinClashDraft;
@@ -51,9 +53,18 @@ export function ClashPreviewStep({ draft, category, clash }: ClashPreviewStepPro
           </div>
         </div>
 
-        <div className="mb-6 inline-flex rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
-          {clash ? "Upcoming clash" : "No joinable clash"}
-        </div>
+        {clash ? <StatusBadge status={clash.status} className="mb-6" /> : (
+          <div className="mb-6 inline-flex rounded-full border border-border/50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            No joinable clash
+          </div>
+        )}
+        {clash ? (
+          <div className="mb-6 space-y-1 text-sm text-muted-foreground">
+            <p>Starts {formatDateTime(clash.startsAt)}</p>
+            <p>Ends {formatDateTime(clash.endsAt)}</p>
+            <p>After you join, you&apos;ll appear on this clash board when it goes live.</p>
+          </div>
+        ) : null}
 
         <div className="rounded-2xl border border-border/40 bg-background/50 p-4">
           <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">

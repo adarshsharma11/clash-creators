@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/toast";
 import { ApiRetryButton, ApiStatusPanel } from "@/components/ui/api-status-panel";
 import { useAuth } from "@/context/auth-context";
 import { useJoinClash } from "@/hooks/mutations/use-join-clash";
@@ -76,6 +77,7 @@ export function JoinClashForm() {
   const categoriesQuery = useCategories();
   const upcomingQuery = useClashes({ status: "UPCOMING", page: 1, limit: 50 });
   const joinMutation = useJoinClash(username);
+  const { notify } = useToast();
 
   const categories = categoriesQuery.data ?? [];
   const upcomingClashes = upcomingQuery.data?.items ?? [];
@@ -187,6 +189,11 @@ export function JoinClashForm() {
                   slug: result.clash.slug,
                   title: result.clash.title,
                   status: result.clash.status,
+                });
+                notify({
+                  tone: "success",
+                  title: "You're in!",
+                  message: `You joined ${result.clash.title}.`,
                 });
               },
             }

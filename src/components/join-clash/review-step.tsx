@@ -2,6 +2,7 @@ import { Avatar } from "@/components/ui/avatar";
 import type { ClashListItem } from "@/types/clash";
 import type { Category } from "@/types/category";
 import type { JoinClashDraft } from "@/types/join-clash";
+import { formatDateTime } from "@/lib/formatters";
 import { normalizeJoinUsername } from "@/lib/join-clash";
 
 interface ReviewStepProps {
@@ -42,6 +43,9 @@ export function ReviewStep({ draft, category, clash }: ReviewStepProps) {
         <ReviewRow label="Username" value={`@${username}`} />
         <ReviewRow label="Category" value={category?.name ?? "—"} />
         <ReviewRow label="Clash" value={clash?.title ?? "No upcoming clash in this category"} />
+        <ReviewRow label="Starts" value={clash ? formatDateTime(clash.startsAt) : "—"} />
+        <ReviewRow label="Ends" value={clash ? formatDateTime(clash.endsAt) : "—"} />
+        <ReviewRow label="After joining" value="You'll appear on the clash board. Support opens when it goes live." />
         <ReviewRow
           label="Profile information"
           value={draft.bio.trim() || "No bio added."}

@@ -3,8 +3,8 @@
 import { useCountdown } from "@/hooks/use-countdown";
 import { formatNumber } from "@/lib/formatters";
 import type { Battle } from "@/types/battle";
-import { Badge } from "@/components/ui/badge";
-import { Flame, Clock, Users, Trophy } from "lucide-react";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { Clock, Users, Trophy } from "lucide-react";
 
 interface BattleHeaderProps {
   battle: Battle;
@@ -19,9 +19,7 @@ export function BattleHeader({ battle }: BattleHeaderProps) {
       <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
         <div>
           <div className="flex items-center gap-3 mb-3">
-            <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0 uppercase">
-              <Flame className="h-3 w-3 mr-1 fill-current" /> Live
-            </Badge>
+            <StatusBadge status={battle.status ?? "LIVE"} />
             <span className="text-sm font-bold tracking-wider text-muted-foreground uppercase">Today&apos;s Clash</span>
           </div>
           <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-2">
@@ -37,7 +35,7 @@ export function BattleHeader({ battle }: BattleHeaderProps) {
             <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1 flex items-center gap-1">
               <Clock className="h-3 w-3" /> Ends In
             </span>
-            <div className="text-2xl md:text-3xl font-bold font-mono tracking-tighter text-foreground">
+            <div className="text-2xl md:text-3xl font-bold font-mono tabular-nums tracking-tighter text-foreground">
               {time.isExpired ? (
                 <span className="text-destructive">ENDED</span>
               ) : (
