@@ -12,6 +12,7 @@ import type { PaymentPhase, SupportIntent, SupportRankPreview } from "@/types/su
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
 import { invalidateConfirmedSupportQueries } from "@/lib/query-invalidation";
+import { useConfirmDemoSupport } from "@/hooks/mutations/use-confirm-demo-support";
 import { useCreateSupport } from "@/hooks/mutations/use-create-support";
 import { useVerifyRazorpayPayment } from "@/hooks/mutations/use-verify-razorpay-payment";
 import { fetchClashLeaderboard } from "@/hooks/queries/use-clashes";
@@ -55,6 +56,7 @@ export function SupportExperience({ creator, battle, entry }: SupportExperienceP
   const reduceMotion = useReducedMotion();
   const createSupportMutation = useCreateSupport();
   const verifyPaymentMutation = useVerifyRazorpayPayment();
+  const confirmDemoMutation = useConfirmDemoSupport();
   const inFlight = useRef(false);
   const [step, setStep] = useState<SupportStep>("select");
   const [amountSource, setAmountSource] = useState<AmountSource>("preset");
@@ -80,8 +82,13 @@ export function SupportExperience({ creator, battle, entry }: SupportExperienceP
     [battle, creator.id, selectedAmount, currentEntry]
   );
   const clashHref = battle ? `/clash/${battle.slug ?? battle.id}` : undefined;
-  const busy = createSupportMutation.isPending || verifyPaymentMutation.isPending;
-  const canSubmit = selectedAmount !== null && step === "select" && Boolean(battle) && !busy && isAuthenticated;
+  const busy =
+    createSupportMutation.isPending ||
+    verifyPaymentMutation.isPending ||
+    confirmDemoMutation.isPending;
+  const supportOpen = battle?.status === "live" || battle?.status === "ending";
+  const canSubmit =
+    selectedAmount !== null && step === "select" && supportOpen && !busy && isAuthenticated;
   const loginPath = `/login?next=${encodeURIComponent(`/support/${creator.username}`)}`;
 
   useEffect(() => {
@@ -119,6 +126,7 @@ export function SupportExperience({ creator, battle, entry }: SupportExperienceP
     setPaymentError(null);
     createSupportMutation.reset();
     verifyPaymentMutation.reset();
+    confirmDemoMutation.reset();
     setStep("confirm");
   };
 
@@ -172,6 +180,7 @@ export function SupportExperience({ creator, battle, entry }: SupportExperienceP
         points: intent.amount,
       });
 
+      const supportId = result.support?.id ?? result.supportId;
       const checkout =
         readRazorpayCheckout(result.payment.checkout) ??
         readRazorpayCheckout({
@@ -181,7 +190,27 @@ export function SupportExperience({ creator, battle, entry }: SupportExperienceP
           currency: result.currency,
         });
 
-      if (!checkout?.keyId || !checkout.orderId) {
+      if (!checkout?.keyId) {
+        if (!supportId) {
+          throw new RazorpayCheckoutError(
+            "The payment order is not ready. The backend did not return a Razorpay order.",
+            "missing_order"
+          );
+        }
+
+        setPhase("verifying");
+        const demoSupport = await confirmDemoMutation.mutateAsync(supportId);
+        if (demoSupport.status !== "CONFIRMED") {
+          setPhase("failed");
+          setPaymentError("Test support could not be confirmed. No points were added.");
+          return;
+        }
+
+        await applyConfirmedSupport(battle.id, battle.slug);
+        return;
+      }
+
+      if (!checkout.orderId) {
         throw new RazorpayCheckoutError(
           "The payment order is not ready. The backend did not return a Razorpay order.",
           "missing_order"
@@ -240,6 +269,7 @@ export function SupportExperience({ creator, battle, entry }: SupportExperienceP
 
     createSupportMutation.reset();
     verifyPaymentMutation.reset();
+    confirmDemoMutation.reset();
     setPhase("idle");
     setPaymentError(null);
     setStep("select");
@@ -319,6 +349,12 @@ export function SupportExperience({ creator, battle, entry }: SupportExperienceP
               />
             </motion.div>
           </AnimatePresence>
+
+          {!supportOpen && battle ? (
+            <p className="text-sm text-muted-foreground">
+              Support is closed for this clash. Ask an admin to go live or reopen the window.
+            </p>
+          ) : null}
 
           <Button
             size="lg"

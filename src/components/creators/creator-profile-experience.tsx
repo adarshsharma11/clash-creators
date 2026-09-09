@@ -16,7 +16,7 @@ import { ApiRetryButton, ApiStatusPanel } from "@/components/ui/api-status-panel
 import { Button } from "@/components/ui/button";
 import { useClashLeaderboard } from "@/hooks/queries/use-clashes";
 import { useCreator, useCreatorClashes, useCreatorSupporters } from "@/hooks/queries/use-creators";
-import { toCreatorFromDetail } from "@/lib/clash-view";
+import { resolveCreatorUsername, toCreatorFromDetail } from "@/lib/clash-view";
 import { formatShortDate } from "@/lib/formatters";
 import { ApiError, getApiErrorMessage } from "@/types/api";
 import type { Achievement } from "@/types/achievements";
@@ -73,6 +73,13 @@ export function CreatorProfileExperience({ username }: CreatorProfileExperienceP
   }
 
   const creator = creatorQuery.data;
+  if (!creator) {
+    return (
+      <main className="container mx-auto max-w-5xl flex-1 px-4 py-16 sm:px-8">
+        <ApiStatusPanel title="Creator not found" message="This creator is unavailable or the username is incorrect." />
+      </main>
+    );
+  }
   const profile = toCreatorFromDetail(creator);
   const history: BattleHistory[] = (clashesQuery.data?.items ?? []).map((item) => ({
     id: item.clash.id,
@@ -161,7 +168,7 @@ export function CreatorProfileExperience({ username }: CreatorProfileExperienceP
                   ? Math.max(0, previousEntry.points - currentEntry.points)
                   : null,
               previousRank: previousEntry?.rank ?? null,
-              username: creator.user.username,
+              username: resolveCreatorUsername(creator),
             }}
           />
         ) : null}
@@ -169,14 +176,14 @@ export function CreatorProfileExperience({ username }: CreatorProfileExperienceP
         <BattleHistoryList history={history} />
         <AchievementsGrid achievements={achievements} />
         <SupportersPreview supporters={supporters} />
-        {isAuthenticated && creatorProfile && user?.username === creator.user.username ? (
+        {isAuthenticated && creatorProfile && user?.username === resolveCreatorUsername(creator) ? (
           <>
             <CreatorProfileEditor creator={creator} />
-            <CreatorSocialEditor username={creator.user.username} accounts={creator.socialAccounts} />
+            <CreatorSocialEditor username={resolveCreatorUsername(creator)} accounts={creator.socialAccounts} />
           </>
         ) : null}
-        {isAuthenticated && user?.username !== creator.user.username ? (
-          <ReportCreatorForm creatorId={creator.id} username={creator.user.username} />
+        {isAuthenticated && user?.username && user.username !== resolveCreatorUsername(creator) ? (
+          <ReportCreatorForm creatorId={creator.id} username={resolveCreatorUsername(creator)} />
         ) : null}
       </div>
     </main>

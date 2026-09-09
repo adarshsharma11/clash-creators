@@ -149,7 +149,7 @@ export type CreatorDetail = {
     username: string;
     fullName: string;
     avatarUrl: string | null;
-  };
+  } | null;
   category: CreatorCategoryRef | null;
   socialAccounts: CreatorSocialAccount[];
   supportTotals: CreatorSupportTotals;

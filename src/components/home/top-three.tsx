@@ -14,9 +14,10 @@ interface TopThreeProps {
 export function TopThree({ entries }: TopThreeProps) {
   const top3 = entries.slice(0, 3);
 
-  if (top3.length < 3) return null;
+  if (top3.length === 0) return null;
 
-  const displayOrder = [top3[1], top3[0], top3[2]];
+  const displayOrder =
+    top3.length === 1 ? [top3[0]] : top3.length === 2 ? [top3[1], top3[0]] : [top3[1], top3[0], top3[2]];
 
   return (
     <div className="relative flex items-end justify-center gap-2 pb-16 pt-12 sm:gap-6 md:gap-12">

@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
   supports: {
     create: "/support",
     detail: (id: string) => `/support/${encodeURIComponent(id)}`,
+    confirmDemo: (id: string) => `/support/${encodeURIComponent(id)}/confirm`,
   },
   payments: {
     verifyRazorpay: "/payments/razorpay/verify",
@@ -49,6 +50,7 @@ export const API_ENDPOINTS = {
     creatorStatus: (id: string) => `/admin/creators/${id}/status`,
     clashes: "/admin/clashes",
     clash: (id: string) => `/admin/clashes/${id}`,
+    clashParticipants: (id: string) => `/admin/clashes/${id}/participants`,
     completeClash: (id: string) => `/admin/clashes/${id}/complete`,
     reports: "/admin/reports",
     report: (id: string) => `/admin/reports/${id}`,

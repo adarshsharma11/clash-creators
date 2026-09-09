@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { useUpdateMyCreatorProfile } from "@/hooks/mutations/use-creator-profile";
 import { useCategories } from "@/hooks/queries/use-categories";
+import { resolveCreatorUsername } from "@/lib/clash-view";
 import { updateCreatorProfileSchema } from "@/lib/validations/creator";
 import { getApiErrorMessage } from "@/types/api";
 import type { CreatorDetail } from "@/types/creator";
@@ -14,7 +15,7 @@ interface CreatorProfileEditorProps {
 
 export function CreatorProfileEditor({ creator }: CreatorProfileEditorProps) {
   const categoriesQuery = useCategories();
-  const updateProfile = useUpdateMyCreatorProfile(creator.user.username);
+  const updateProfile = useUpdateMyCreatorProfile(resolveCreatorUsername(creator));
   const [displayName, setDisplayName] = useState(creator.displayName);
   const [bio, setBio] = useState(creator.bio ?? "");
   const [avatarUrl, setAvatarUrl] = useState(creator.avatarUrl ?? "");

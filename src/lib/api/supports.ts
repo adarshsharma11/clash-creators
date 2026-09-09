@@ -20,3 +20,7 @@ export function createSupport(
 export function getSupport(id: string, signal?: AbortSignal): Promise<SupportRecord> {
   return apiClient.get<SupportRecord>(API_ENDPOINTS.supports.detail(id), { signal });
 }
+
+export function confirmDemoSupport(id: string, signal?: AbortSignal): Promise<SupportRecord> {
+  return apiClient.post<SupportRecord>(API_ENDPOINTS.supports.confirmDemo(id), undefined, { signal });
+}
