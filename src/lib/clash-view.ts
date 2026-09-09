@@ -18,7 +18,10 @@ export function toBattleStatus(status: ClashStatus, endsAt: string): BattleStatu
 
   if (status === "LIVE") {
     const remaining = new Date(endsAt).getTime() - Date.now();
-    if (remaining > 0 && remaining < ENDING_WINDOW_MS) {
+    if (remaining <= 0) {
+      return "completed";
+    }
+    if (remaining < ENDING_WINDOW_MS) {
       return "ending";
     }
 
@@ -32,8 +35,15 @@ export function resolveCreatorUsername(creator: {
   username?: string | null;
   displayName?: string | null;
   user?: { username?: string | null } | null;
+  socialAccounts?: Array<{ username?: string | null; isPrimary?: boolean }> | null;
 }): string {
-  return creator.user?.username?.trim() || creator.username?.trim() || "";
+  return (
+    creator.user?.username?.trim() ||
+    creator.username?.trim() ||
+    creator.socialAccounts?.find((account) => account.isPrimary)?.username?.trim() ||
+    creator.socialAccounts?.[0]?.username?.trim() ||
+    ""
+  );
 }
 
 export function creatorAvatarUrl(creator: ClashCreatorRef): string | null {
@@ -47,7 +57,7 @@ export function isPrimarySocialVerified(accounts: CreatorSocialAccount[]): boole
 export function toCreatorFromDetail(creator: CreatorDetail): Creator {
   return {
     id: creator.id,
-    username: creator.user?.username ?? "",
+    username: resolveCreatorUsername(creator),
     displayName: creator.displayName,
     avatarUrl: creator.avatarUrl ?? creator.user?.avatarUrl ?? null,
     category: creator.category?.name,

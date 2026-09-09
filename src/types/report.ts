@@ -24,7 +24,7 @@ export type AdminReport = {
     displayName: string;
     user: {
       username: string;
-    };
+    } | null;
   } | null;
   clash?: {
     id: string;

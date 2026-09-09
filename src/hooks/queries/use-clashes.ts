@@ -23,6 +23,7 @@ export function useLiveClash() {
     queryKey: queryKeys.clashes.live,
     queryFn: ({ signal }) => getLiveClash(signal),
     staleTime: LIVE_STALE_TIME,
+    refetchInterval: LIVE_STALE_TIME,
     retry: retryUnlessNotFound,
   });
 }
@@ -60,6 +61,7 @@ export function useClashLeaderboard(id: string, query: ClashLeaderboardQuery = {
     queryFn: ({ signal }) => getClashLeaderboard(id, query, signal),
     enabled: enabled && id.length > 0,
     staleTime: LIVE_STALE_TIME,
+    refetchInterval: LIVE_STALE_TIME,
     retry: retryUnlessNotFound,
   });
 }

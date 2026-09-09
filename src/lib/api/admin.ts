@@ -85,6 +85,14 @@ export function updateClash(
   return apiClient.patch<AdminClash>(API_ENDPOINTS.admin.clash(id), input, { signal });
 }
 
+export function addClashParticipant(
+  id: string,
+  input: { username: string; platform: string },
+  signal?: AbortSignal
+): Promise<{ alreadyJoined: boolean }> {
+  return apiClient.post(API_ENDPOINTS.admin.clashParticipants(id), input, { signal });
+}
+
 export function completeClash(id: string, signal?: AbortSignal): Promise<CompleteClashResult> {
   return apiClient.post<CompleteClashResult>(API_ENDPOINTS.admin.completeClash(id), undefined, {
     signal,

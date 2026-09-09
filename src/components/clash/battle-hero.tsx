@@ -32,8 +32,13 @@ export function BattleHero({ battle }: BattleHeroProps) {
             {battle.title}
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground mb-12">
-            {battle.summary} Who owns the crown?
+          {battle.summary ? (
+            <p className="mb-4 max-w-2xl text-xl text-primary md:text-2xl">
+              {battle.summary}
+            </p>
+          ) : null}
+          <p className="mb-12 text-base text-muted-foreground md:text-lg">
+            Support a creator. 1 point = ₹1. First place when the timer ends wins.
           </p>
 
           <div className="w-full flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 bg-card/60 backdrop-blur-sm border border-border/50 rounded-3xl p-6 md:p-8 shadow-sm">

@@ -47,11 +47,11 @@ export function AdminCreatorsPanel() {
       cell: (row) => (
         <div>
           <p className="font-semibold">{row.displayName}</p>
-          <p className="text-xs text-muted-foreground">@{row.user.username}</p>
+          <p className="text-xs text-muted-foreground">@{row.username ?? row.user?.username ?? "unlinked"}</p>
         </div>
       ),
     },
-    { id: "username", header: "Username", cell: (row) => `@${row.user.username}`, hideOnMobile: true },
+    { id: "username", header: "Username", cell: (row) => `@${row.username ?? row.user?.username ?? "unlinked"}`, hideOnMobile: true },
     { id: "category", header: "Category", cell: (row) => row.category?.name ?? "—" },
     { id: "status", header: "Status", cell: (row) => <CreatorStatusBadge status={row.status} /> },
     { id: "joined", header: "Joined", cell: (row) => formatAdminDate(row.createdAt) },
@@ -61,7 +61,7 @@ export function AdminCreatorsPanel() {
       cell: (row) => (
         <div className="flex flex-wrap gap-2">
           <Button asChild size="sm" variant="outline">
-            <Link href={`/creators/${row.user.username}`}>View</Link>
+            <Link href={`/creators/${row.username ?? row.user?.username ?? row.id}`}>View</Link>
           </Button>
           <Button size="sm" variant="ghost" onClick={() => setPending(row)}>
             {row.status === "SUSPENDED" ? "Restore" : "Suspend"}
@@ -125,8 +125,8 @@ export function AdminCreatorsPanel() {
         description={
           pending
             ? pending.status === "SUSPENDED"
-              ? `@${pending.user.username} will be marked active again.`
-              : `@${pending.user.username} will be suspended.`
+              ? `@${pending.username ?? pending.user?.username ?? pending.displayName} will be marked active again.`
+              : `@${pending.username ?? pending.user?.username ?? pending.displayName} will be suspended.`
             : ""
         }
         confirmLabel={pending?.status === "SUSPENDED" ? "Restore" : "Suspend Creator"}

@@ -86,7 +86,9 @@ export function SupportExperience({ creator, battle, entry }: SupportExperienceP
     createSupportMutation.isPending ||
     verifyPaymentMutation.isPending ||
     confirmDemoMutation.isPending;
-  const canSubmit = selectedAmount !== null && step === "select" && Boolean(battle) && !busy && isAuthenticated;
+  const supportOpen = battle?.status === "live" || battle?.status === "ending";
+  const canSubmit =
+    selectedAmount !== null && step === "select" && supportOpen && !busy && isAuthenticated;
   const loginPath = `/login?next=${encodeURIComponent(`/support/${creator.username}`)}`;
 
   useEffect(() => {
@@ -347,6 +349,12 @@ export function SupportExperience({ creator, battle, entry }: SupportExperienceP
               />
             </motion.div>
           </AnimatePresence>
+
+          {!supportOpen && battle ? (
+            <p className="text-sm text-muted-foreground">
+              Support is closed for this clash. Ask an admin to go live or reopen the window.
+            </p>
+          ) : null}
 
           <Button
             size="lg"

@@ -93,6 +93,26 @@ export function ClashExperience({ clashId }: ClashExperienceProps) {
 
       <BattleHero battle={battle} />
 
+      {clash.status === "COMPLETED" && clash.winner ? (
+        <section className="container mx-auto max-w-5xl px-4 pb-4 sm:px-8">
+          <div className="rounded-3xl border border-amber-400/40 bg-amber-400/10 p-6 text-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-amber-200">Champion</p>
+            <h2 className="mt-2 text-2xl font-extrabold">
+              {clash.winner.creator.displayName} wins {clash.title}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {clash.winner.points} confirmed support points.
+            </p>
+          </div>
+        </section>
+      ) : null}
+
+      {clash.status === "UPCOMING" ? (
+        <div className="container mx-auto max-w-5xl px-4 pb-8 sm:px-8">
+          <JoinClashCard variant="compact" clashId={clash.slug} />
+        </div>
+      ) : null}
+
       <div className="container mx-auto max-w-5xl px-4 sm:px-8">
         {leaderboardQuery.isError ? (
           <div className="mb-8">

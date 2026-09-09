@@ -6,7 +6,7 @@ export const SUPPORT_PRESETS = [10, 50, 100, 250, 500, 1000] as const;
 export type SupportPreset = (typeof SUPPORT_PRESETS)[number];
 
 export const MIN_SUPPORT_AMOUNT = 10;
-export const MAX_SUPPORT_AMOUNT = 25_000;
+export const MAX_SUPPORT_AMOUNT = 1_000;
 export const DEFAULT_SUPPORT_AMOUNT: SupportPreset = 50;
 
 export function sanitizeSupportInput(raw: string): string {

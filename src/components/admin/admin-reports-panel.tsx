@@ -39,7 +39,7 @@ export function AdminReportsPanel() {
         <div>
           <p className="font-semibold">{row.creator?.displayName ?? "—"}</p>
           <p className="text-xs text-muted-foreground">
-            {row.creator ? `@${row.creator.user.username}` : "No creator"}
+            {row.creator ? `@${row.creator.user?.username ?? row.creator.displayName}` : "No creator"}
           </p>
         </div>
       ),

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { BattleHeader } from "@/components/home/battle-header";
 import { CategoryList } from "@/components/home/category-list";
 import { FinalCTA } from "@/components/home/final-cta";
@@ -8,6 +9,7 @@ import { HowItWorks } from "@/components/home/how-it-works";
 import { Leaderboard } from "@/components/home/leaderboard";
 import { WinnersPreview } from "@/components/home/winners-preview";
 import { ApiRetryButton, ApiStatusPanel } from "@/components/ui/api-status-panel";
+import { Button } from "@/components/ui/button";
 import { SkeletonLeaderboardRow } from "@/components/ui/skeleton";
 import { CURRENT_BATTLE_ID } from "@/data/constants";
 import { useCategories } from "@/hooks/queries/use-categories";
@@ -69,7 +71,12 @@ export function HomeExperience() {
           ) : (
             <ApiStatusPanel
               title="No live clash right now"
-              message="A new clash will appear here when it goes live."
+              message="A new clash will appear here when it goes live. You can still join the next upcoming clash."
+              action={
+                <Button asChild className="font-bold">
+                  <Link href="/join-clash">Join a clash</Link>
+                </Button>
+              }
             />
           )}
         </section>

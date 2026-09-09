@@ -33,12 +33,13 @@ export type AdminCreator = {
   bio: string | null;
   status: CreatorStatus;
   createdAt: string;
+  username?: string | null;
   user: {
     username: string;
     fullName: string;
     email: string;
     isActive: boolean;
-  };
+  } | null;
   category: {
     name: string;
     slug: string;

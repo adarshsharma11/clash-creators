@@ -13,6 +13,7 @@ import { AdminSearch } from "@/components/admin/admin-search";
 import { ClashStatusBadge } from "@/components/admin/admin-status-badges";
 import { ClashesSkeleton } from "@/components/admin/clashes-skeleton";
 import { Button } from "@/components/ui/button";
+import { useAddClashParticipant } from "@/hooks/mutations/use-admin-add-participant";
 import { useCompleteClash } from "@/hooks/mutations/use-admin-complete-clash";
 import { useCreateClash } from "@/hooks/mutations/use-admin-create-clash";
 import { useUpdateClash } from "@/hooks/mutations/use-admin-update-clash";
@@ -48,6 +49,10 @@ export function AdminClashesPanel() {
   const [createOpen, setCreateOpen] = useState(false);
   const [completeTarget, setCompleteTarget] = useState<AdminClash | null>(null);
   const [goLiveTarget, setGoLiveTarget] = useState<AdminClash | null>(null);
+  const [addCreatorTarget, setAddCreatorTarget] = useState<AdminClash | null>(null);
+  const [addUsername, setAddUsername] = useState("");
+  const [addPlatform, setAddPlatform] = useState("INSTAGRAM");
+  const [prize, setPrize] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -68,6 +73,7 @@ export function AdminClashesPanel() {
   const createClash = useCreateClash();
   const updateClash = useUpdateClash();
   const completeClash = useCompleteClash();
+  const addParticipant = useAddClashParticipant();
 
   const rows = query.data?.items ?? [];
   const pageCount = Math.max(1, query.data?.pagination.totalPages ?? 1);
@@ -87,6 +93,11 @@ export function AdminClashesPanel() {
           <Button asChild size="sm" variant="outline">
             <Link href={`/clash/${row.slug}`}>View</Link>
           </Button>
+          {row.status === "UPCOMING" || row.status === "LIVE" ? (
+            <Button size="sm" variant="ghost" onClick={() => setAddCreatorTarget(row)}>
+              Add creator
+            </Button>
+          ) : null}
           {row.status === "UPCOMING" ? (
             <Button size="sm" variant="ghost" onClick={() => setGoLiveTarget(row)}>
               Go live
@@ -128,6 +139,7 @@ export function AdminClashesPanel() {
     setTitle("");
     setSlug("");
     setDescription("");
+    setPrize("");
     setCategoryId("");
     setStartsAt("");
     setEndsAt("");
@@ -169,7 +181,9 @@ export function AdminClashesPanel() {
       {
         title: parsed.data.title,
         slug: parsed.data.slug,
-        description: parsed.data.description || null,
+        description: [prize.trim() ? `Prize: ${prize.trim()}` : "", parsed.data.description]
+          .filter(Boolean)
+          .join("\n\n") || null,
         categoryId: parsed.data.categoryId,
         startsAt: new Date(parsed.data.startsAt).toISOString(),
         endsAt: new Date(parsed.data.endsAt).toISOString(),
@@ -286,6 +300,16 @@ export function AdminClashesPanel() {
               ))}
             </select>
             {fieldErrors.categoryId ? <p className="mt-1 text-xs text-red-400">{fieldErrors.categoryId}</p> : null}
+            <label htmlFor="clash-prize" className="mt-4 block text-sm font-semibold">
+              Prize
+            </label>
+            <input
+              id="clash-prize"
+              value={prize}
+              onChange={(event) => setPrize(event.target.value)}
+              placeholder="Winner takes ₹2,000"
+              className={inputClass}
+            />
             <label htmlFor="clash-description" className="mt-4 block text-sm font-semibold">
               Description
             </label>
@@ -383,6 +407,87 @@ export function AdminClashesPanel() {
           );
         }}
       />
+
+      {addCreatorTarget ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/70"
+            aria-label="Close"
+            onClick={() => setAddCreatorTarget(null)}
+          />
+          <form
+            className="relative w-full max-w-md rounded-2xl border border-border/60 bg-card p-6"
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (!addCreatorTarget || addParticipant.isPending) {
+                return;
+              }
+              addParticipant.mutate(
+                {
+                  id: addCreatorTarget.id,
+                  username: addUsername.trim(),
+                  platform: addPlatform,
+                },
+                {
+                  onSuccess: (result) => {
+                    setFeedback(
+                      result.alreadyJoined
+                        ? `${addUsername} was already in ${addCreatorTarget.title}.`
+                        : `${addUsername} added to ${addCreatorTarget.title}.`
+                    );
+                    setAddUsername("");
+                    setAddCreatorTarget(null);
+                  },
+                  onError: (error) => {
+                    setFormError(getApiErrorMessage(error));
+                  },
+                }
+              );
+            }}
+          >
+            <h2 className="text-lg font-bold">Add creator</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Add an Instagram, YouTube, or other handle to {addCreatorTarget.title}.
+            </p>
+            <label htmlFor="add-creator-username" className="mt-4 block text-sm font-semibold">
+              Username
+            </label>
+            <input
+              id="add-creator-username"
+              value={addUsername}
+              onChange={(event) => setAddUsername(event.target.value)}
+              className={inputClass}
+              placeholder="learn_with_sam"
+            />
+            <label htmlFor="add-creator-platform" className="mt-4 block text-sm font-semibold">
+              Platform
+            </label>
+            <select
+              id="add-creator-platform"
+              value={addPlatform}
+              onChange={(event) => setAddPlatform(event.target.value)}
+              className={inputClass}
+            >
+              <option value="INSTAGRAM">Instagram</option>
+              <option value="YOUTUBE">YouTube</option>
+              <option value="TIKTOK">TikTok</option>
+              <option value="X">X</option>
+              <option value="FACEBOOK">Facebook</option>
+              <option value="TWITCH">Twitch</option>
+            </select>
+            {formError ? <p className="mt-3 text-sm text-red-400">{formError}</p> : null}
+            <div className="mt-6 flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setAddCreatorTarget(null)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={addParticipant.isPending || addUsername.trim().length < 2}>
+                {addParticipant.isPending ? "Adding…" : "Add"}
+              </Button>
+            </div>
+          </form>
+        </div>
+      ) : null}
 
       <AdminConfirmDialog
         open={completeTarget !== null}
