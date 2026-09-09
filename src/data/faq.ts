@@ -106,7 +106,7 @@ export const faqItems: FAQItem[] = [
     question: "How can I support a creator?",
     category: "support",
     answer: [
-      "Open a creator profile, a battle row, or a support URL. Choose a Support Point amount, review the rank preview, and confirm. No payment is collected on this page yet.",
+      "Sign in, open a creator from the live Clash, pick a Support Point amount, and pay with Razorpay. 1 point = ₹1. Rank only changes after payment is confirmed.",
     ],
     link: { label: "View Rules", href: "/rules#support" },
   },
@@ -115,7 +115,7 @@ export const faqItems: FAQItem[] = [
     question: "Are Support Points money?",
     category: "support",
     answer: [
-      "No. Support Points move a creator on the Clash leaderboard. They are not a currency, and ClashCreators does not charge a card or UPI amount in this MVP.",
+      "Support Points move a creator on the live Clash leaderboard. 1 point = ₹1, collected through Razorpay. Points are not a withdrawable wallet for fans.",
     ],
   },
   {
@@ -164,7 +164,7 @@ export const faqItems: FAQItem[] = [
     question: "Do I need to sign in?",
     category: "account",
     answer: [
-      "Not for this MVP. You can watch battles and complete the frontend support flow without an account. Sign In is reserved for a later release.",
+      "You can watch a Clash without an account. Supporting a creator requires sign-in so we can attach the payment and keep the leaderboard honest.",
     ],
   },
   {
@@ -172,7 +172,7 @@ export const faqItems: FAQItem[] = [
     question: "Is payment required to support a creator?",
     category: "account",
     answer: [
-      "Not yet. Confirmation simulates support locally so the product flow can be tested. A real payment step can replace that confirmation later.",
+      "Yes. Support uses Razorpay checkout. Points are added only after the payment is verified.",
     ],
     link: { label: "View Rules", href: "/rules#support" },
   },

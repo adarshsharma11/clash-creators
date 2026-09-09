@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
   supports: {
     create: "/support",
     detail: (id: string) => `/support/${encodeURIComponent(id)}`,
+    confirmDemo: (id: string) => `/support/${encodeURIComponent(id)}/confirm`,
   },
   payments: {
     verifyRazorpay: "/payments/razorpay/verify",

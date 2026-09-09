@@ -36,8 +36,8 @@ export const ruleSections: RuleSection[] = [
     number: "03",
     title: "How Support works",
     paragraphs: [
-      "Support Points are the only thing that moves a creator up the board. They are not a currency, and this MVP does not process payments.",
-      "Choose a creator, pick an amount, confirm, and the local leaderboard preview updates. A real payment flow can replace confirmation later without changing this rule.",
+      "Support Points are the only thing that moves a creator up the board. 1 point = ₹1. Payment is collected through Razorpay and points count only after confirmation.",
+      "Sign in, choose a creator in a live Clash, pick an amount, pay, and the leaderboard updates.",
     ],
     bullets: [
       "Preset amounts: 10, 50, 100, 250, 500, and 1,000 points.",

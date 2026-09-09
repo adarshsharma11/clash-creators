@@ -11,6 +11,8 @@ export function useUpdateClash() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.admin.clashes.all });
       void queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.auditLogs.all });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.clashes.all });
     },
   });
 }

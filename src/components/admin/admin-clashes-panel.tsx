@@ -15,6 +15,7 @@ import { ClashesSkeleton } from "@/components/admin/clashes-skeleton";
 import { Button } from "@/components/ui/button";
 import { useCompleteClash } from "@/hooks/mutations/use-admin-complete-clash";
 import { useCreateClash } from "@/hooks/mutations/use-admin-create-clash";
+import { useUpdateClash } from "@/hooks/mutations/use-admin-update-clash";
 import { useAdminClashes } from "@/hooks/queries/use-admin-clashes";
 import { useCategories } from "@/hooks/queries/use-categories";
 import { formatAdminDateTime } from "@/lib/admin-format";
@@ -23,6 +24,17 @@ import { getApiErrorMessage } from "@/types/api";
 import type { AdminClash } from "@/types/clash";
 
 const PAGE_SIZE = 6;
+const LIVE_WINDOW_HOURS = 24;
+
+function liveWindow(hours = LIVE_WINDOW_HOURS) {
+  const startsAt = new Date();
+  const endsAt = new Date(startsAt.getTime() + hours * 60 * 60 * 1000);
+  return { startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString() };
+}
+
+function isWindowOpen(clash: AdminClash, now = Date.now()) {
+  return new Date(clash.startsAt).getTime() <= now && now <= new Date(clash.endsAt).getTime();
+}
 const inputClass =
   "mt-1.5 h-11 w-full rounded-xl border border-border/50 bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
@@ -35,6 +47,7 @@ export function AdminClashesPanel() {
   const [page, setPage] = useState(1);
   const [createOpen, setCreateOpen] = useState(false);
   const [completeTarget, setCompleteTarget] = useState<AdminClash | null>(null);
+  const [goLiveTarget, setGoLiveTarget] = useState<AdminClash | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -53,6 +66,7 @@ export function AdminClashesPanel() {
   });
   const categories = useCategories();
   const createClash = useCreateClash();
+  const updateClash = useUpdateClash();
   const completeClash = useCompleteClash();
 
   const rows = query.data?.items ?? [];
@@ -73,6 +87,33 @@ export function AdminClashesPanel() {
           <Button asChild size="sm" variant="outline">
             <Link href={`/clash/${row.slug}`}>View</Link>
           </Button>
+          {row.status === "UPCOMING" ? (
+            <Button size="sm" variant="ghost" onClick={() => setGoLiveTarget(row)}>
+              Go live
+            </Button>
+          ) : null}
+          {row.status === "LIVE" && !isWindowOpen(row) ? (
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={updateClash.isPending}
+              onClick={() => {
+                updateClash.mutate(
+                  { id: row.id, input: liveWindow() },
+                  {
+                    onSuccess: () => {
+                      setFeedback(`${row.title} is accepting support for the next ${LIVE_WINDOW_HOURS} hours.`);
+                    },
+                    onError: (error) => {
+                      setFormError(getApiErrorMessage(error));
+                    },
+                  }
+                );
+              }}
+            >
+              Reopen 24h
+            </Button>
+          ) : null}
           {row.status === "LIVE" ? (
             <Button size="sm" variant="ghost" onClick={() => setCompleteTarget(row)}>
               Complete
@@ -152,7 +193,7 @@ export function AdminClashesPanel() {
     <div>
       <AdminPageHeader
         title="Clashes"
-        description="Create, review, and complete clashes."
+        description="Create a clash, collect joiners, go live, then complete it when the battle ends."
         actions={<Button onClick={() => setCreateOpen(true)}>Create Clash</Button>}
       />
       <AdminFilterBar>
@@ -306,6 +347,42 @@ export function AdminClashesPanel() {
           </form>
         </div>
       ) : null}
+
+      <AdminConfirmDialog
+        open={goLiveTarget !== null}
+        title="Start this clash now?"
+        description={
+          goLiveTarget
+            ? `${goLiveTarget.title} will go live immediately. Support will stay open for ${LIVE_WINDOW_HOURS} hours.`
+            : ""
+        }
+        confirmLabel="Go Live"
+        confirming={updateClash.isPending}
+        onClose={() => setGoLiveTarget(null)}
+        onConfirm={() => {
+          if (!goLiveTarget || updateClash.isPending) {
+            return;
+          }
+          updateClash.mutate(
+            {
+              id: goLiveTarget.id,
+              input: {
+                status: "LIVE",
+                ...liveWindow(),
+              },
+            },
+            {
+              onSuccess: () => {
+                setFeedback("Clash is live. Fans can support creators now.");
+                setGoLiveTarget(null);
+              },
+              onError: (error) => {
+                setFormError(getApiErrorMessage(error));
+              },
+            }
+          );
+        }}
+      />
 
       <AdminConfirmDialog
         open={completeTarget !== null}

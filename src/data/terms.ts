@@ -25,9 +25,9 @@ export const termsSections: TermsSection[] = [
     id: "what-the-service-is",
     title: "What the Service is",
     paragraphs: [
-      `${legalContact.siteName} is a public creator-competition website. Creators appear in Clashes. Supporters can choose Support Points and confirm a frontend support flow that previews how a creator might move on the board.`,
-      "The current Service is a frontend-only MVP. It does not process real payments, does not create a real account, and does not store support in a production database. Support Points are not money. Confirming support on this site does not buy traffic, customers, revenue, exclusive placement, or a guaranteed rank.",
-      "Leaderboards, creator profiles, winners, and categories on the Service use deterministic dummy data for demonstration. We may change, pause, or discontinue features, including ranking displays and support previews.",
+      `${legalContact.siteName} is a public creator-competition website. Creators join timed Clashes. Signed-in supporters can buy Support Points to move a creator on that Clash leaderboard.`,
+      "Support Points are a ranking mechanic, not a withdrawable wallet for fans. 1 Support Point equals ₹1. Payment is processed by Razorpay. Confirming support does not buy traffic, customers, exclusive placement, or a guaranteed final rank.",
+      "Leaderboards, creator profiles, winners, and categories reflect live data from the Service. We may change, pause, or discontinue features, including ranking displays and support.",
     ],
   },
   {
@@ -43,8 +43,8 @@ export const termsSections: TermsSection[] = [
     id: "support-points",
     title: "Support Points",
     paragraphs: [
-      "Support Points are a product mechanic used to show how a creator could climb a Clash. They are not a currency and are not converted to rupees, dollars, or any other payment method on this MVP.",
-      "There is no checkout, card collection, UPI, or payment processor on the Service today. A later version may replace the confirm step with a real payment flow. Those Terms will be updated before any real payment is collected.",
+      "Support Points are used to rank creators in a live Clash. 1 Support Point equals ₹1. They are not a stored-value wallet and cannot be withdrawn by fans.",
+      "Checkout is handled by Razorpay. Card, UPI, and net-banking details are collected on Razorpay's pages, not on ClashCreators. Points are added only after payment is verified.",
     ],
   },
   {
@@ -71,15 +71,15 @@ export const termsSections: TermsSection[] = [
     id: "our-rights",
     title: "Our right to change or remove access",
     paragraphs: [
-      "We may refuse, hide, edit, or remove pages, dummy listings, or features when we believe these Terms, the Rules, or the law may have been broken, or where we think continued display creates legal, security, or reputational risk.",
+      "We may refuse, hide, edit, or remove pages, listings, or features when we believe these Terms, the Rules, or the law may have been broken, or where we think continued display creates legal, security, or reputational risk.",
     ],
   },
   {
     id: "third-party",
     title: "Third-party content and no endorsement",
     paragraphs: [
-      "Creator names, avatars, and category labels on the Service are used to identify dummy or displayed profiles. Appearance on a Clash or Hall of Fame is not our opinion of a creator and is not a certification or endorsement.",
-      "Support totals, ranks, and social-proof numbers describe what the current demo data or local preview shows. They are not a promise that a creator will get the same outcome later.",
+      "Creator names, avatars, and category labels identify creators who have joined the Service. Appearance on a Clash or Hall of Fame is not our opinion of a creator and is not a certification or endorsement.",
+      "Support totals, ranks, and social-proof numbers describe confirmed support on the Service. They are not a promise that a creator will get the same outcome later.",
       "Links from the Service to creator pages, Clashes, or third-party sites leave this page's context. Those destinations have their own terms. We are not responsible for them.",
       `${legalContact.siteName}, the wordmark, and the look of the Service are ours. You may not copy the Service or use our brand in a way that suggests we endorse you.`,
     ],

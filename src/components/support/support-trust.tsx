@@ -5,8 +5,8 @@ export function SupportTrust() {
         How support works
       </h3>
       <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
-        Support Points help this creator climb today&apos;s Clash leaderboard. They are
-        not a currency, and no payment is processed on this page yet.
+        1 Support Point = ₹1. Payment is collected through Razorpay. Points
+        only count on the live Clash after the payment is confirmed.
       </p>
     </section>
   );
